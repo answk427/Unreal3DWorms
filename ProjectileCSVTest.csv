@@ -1,0 +1,4 @@
+Name,Radius,MaxSpeed,Weight,AttackPower,ExplodeRange,Texture2D,ProjectileClass
+Grenade,5,3000,10,30,250,,"Class'""/Script/WarmsPortfolio.Grenade""'"
+Missile,5,3000,100,50,400,,"Class'""/Script/WarmsPortfolio.Missile""'"
+Temp,1,1,1,1,1,,
