@@ -8,15 +8,30 @@
 #include "DataTableStructures.generated.h"
 
 class AProjectile;
+class AWeapon;
 
 USTRUCT()
-struct FProjectileData : public FTableRowBase
+struct FWeaponData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	FWeaponData() : AttackPower(10.0f){}
+	//공격력
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	float AttackPower;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	TSubclassOf<AWeapon> WeaponClass;
+};
+
+USTRUCT()
+struct FProjectileData : public FWeaponData
 {
 	GENERATED_BODY()
 
 	FProjectileData() :
 		Radius(5.0f), MaxSpeed(3000.0f), Weight(10.0f),
-		AttackPower(10.0f), ExplodeRange(100.0f)
+		ExplodeRange(100.0f)
 	{}
 
 	//Name
@@ -32,20 +47,12 @@ struct FProjectileData : public FTableRowBase
 	//투사체 무게
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 	float Weight;
-
-	//공격력
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
-	float AttackPower;
+	
 
 	//폭발범위
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 	float ExplodeRange;
-	
-	UPROPERTY()
-	TSubclassOf<UTexture2D> Texture2D;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
-	TSubclassOf<AProjectile> ProjectileClass;
+		
 
 	/*void operator=(const FProjectileData& other)
 	{
@@ -55,7 +62,7 @@ struct FProjectileData : public FTableRowBase
 		AttackPower = other.AttackPower;
 		ExplodeRange = other.ExplodeRange;
 		Texture2D = other.Texture2D;
-		ProjectileClass = ProjectileClass;
+		WeaponClass = WeaponClass;
 	}*/
 };
 

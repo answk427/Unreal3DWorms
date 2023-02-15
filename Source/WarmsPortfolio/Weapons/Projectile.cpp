@@ -95,7 +95,7 @@ inline void AProjectile::Explode(const FHitResult& Impact)
 
 		const FVector spawnPos = SpawnTransform.GetLocation();
 
-
+		
 		AProjectileExplosionEffect* const EffectActor = GetWorld()->SpawnActorDeferred<AProjectileExplosionEffect>(mExplosionFX, SpawnTransform);
 		//AProjectileExplosionEffect* const EffectActor = GetWorld()->SpawnActorDeferred<AProjectileExplosionEffect>(AProjectileExplosionEffect::StaticClass(), SpawnTransform);
 		//auto EffectActor = NewObject<AProjectileExplosionEffect>(GetWorld(), mExplosionFX);

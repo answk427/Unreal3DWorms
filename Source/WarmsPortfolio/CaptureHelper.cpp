@@ -5,14 +5,11 @@
 #include <Camera/CameraComponent.h>
 #include "Weapons/Weapon.h"
 
-#include "WPGameInstance.h"
-#include "WPDataManager.h"
 #include <Kismet/GameplayStatics.h>
 #include "Engine/DataTable.h"
 
 #include "Engine/TextureRenderTarget2D.h"
 #include "Components/SceneCaptureComponent2D.h"
-
 #include "Components/Image.h"
 UCaptureHelper* UCaptureHelper::Instance()
 {
@@ -32,7 +29,7 @@ void UCaptureHelper::DrawActorToTexture(UClass* ActorClass, UTextureRenderTarget
 	//액터 하나를 렌더링하기 위해 생성한 월드공간
 	UWorld* OffscreenWorld = UWorld::CreateWorld(EWorldType::GamePreview, true);
 
-	const FTransform ActorTr(FRotator(0.0f, 0.0f, 0.0f), FVector(0, 0f, 0.0f, 0.0f));
+	const FTransform ActorTr(FRotator(0.0f, 0.0f, 0.0f), FVector(0.0f, 0.0f, 0.0f));
 	AActor* SpawnedActor = OffscreenWorld->SpawnActor<AActor>(ActorClass, ActorTr);
 
 	// Create the SceneCaptureComponent
@@ -43,7 +40,7 @@ void UCaptureHelper::DrawActorToTexture(UClass* ActorClass, UTextureRenderTarget
 	//ViewInfo.FOV = 90.0f; //수직시야각
 	//SceneCaptureComponent->SetCameraView(ViewInfo);
 
-	SceneCaptureComponent->SetWorldLocationAndRotation(FVector(0, 0, 0), FRotator(0, 0, 0));
+	SceneCaptureComponent->SetWorldLocationAndRotation(FVector(0, -100, 0), FRotator(0, 0, 0));
 	SceneCaptureComponent->ProjectionType = ECameraProjectionMode::Perspective;
 	SceneCaptureComponent->TextureTarget = RenderTarget;
 	SceneCaptureComponent->CaptureSource = SCS_SceneColorHDR;
@@ -52,24 +49,8 @@ void UCaptureHelper::DrawActorToTexture(UClass* ActorClass, UTextureRenderTarget
 	RenderTarget->ClearColor = FLinearColor(1.f, 1.f, 1.f, 1.f);
 	
 	SceneCaptureComponent->CaptureScene();
-
-	   
-	////데이터테이블에서 테이블을 가져옴.
-	//static UWPGameInstance* GameInstance = Cast<UWPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	//check(GameInstance);
-	//WPDataManager* DataManager = GameInstance->DataManager.Get();
-	//check(DataManager);
-
-	//UDataTable* DataTable = DataManager->GetTable(TableName);
-
-	////에러 발생시 알수있는 테이블 이름
-	//FString ContextString(TEXT("CaptureHelper_"));
-	//ContextString += RowName.ToString();
-	//FName ContextName(*ContextString);
-	//
-
-	//DataStruct* dataInfo = DataTable->FindRow<DataStruct>(RowName, ContextName);
-
+		   
+	
 	//임시로 생성했던 월드 파괴
 	OffscreenWorld->DestroyWorld(false);
 

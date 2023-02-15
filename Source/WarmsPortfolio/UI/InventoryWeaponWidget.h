@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+	// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -16,8 +16,9 @@ class WARMSPORTFOLIO_API UInventoryWeaponWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-	
-	TMap<FName, UInventoryWeaponEntry*> WeaponEntries;
 
-	void AddEntry();
+	static TMap<FName, UInventoryWeaponEntry*> WeaponEntries;
+		
+public:
+	void AddEntry(const FName& WeaponName, const FName& TableName);
 };

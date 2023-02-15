@@ -156,7 +156,7 @@ void APlayerCharacter::OnFire()
 	check(mProjectileTable);
 
 	const FProjectileData* currProjectileData = mProjectileTable->FindRow<FProjectileData>(FName(TEXT("GrenadeTest")), TEXT("OnFireProjectileTable"));
-	mProjectile = currProjectileData->ProjectileClass;
+	mProjectile = currProjectileData->WeaponClass;
 
 	
 	if (mProjectile != nullptr)
