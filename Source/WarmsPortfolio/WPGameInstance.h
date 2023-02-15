@@ -2,16 +2,16 @@
 
 #pragma once
 
+#include <memory>
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "WPDataManager.h"
 #include "WPGameInstance.generated.h"
 
 /**
  * 
  */
 
-struct FProjectileData;
-class UDataTable;
 
 UCLASS()
 class WARMSPORTFOLIO_API UWPGameInstance : public UGameInstance
@@ -19,11 +19,11 @@ class WARMSPORTFOLIO_API UWPGameInstance : public UGameInstance
 	GENERATED_BODY()
 	
 	UWPGameInstance();
+	
 public:
 	virtual void Init() override;
-
-private:
-	UDataTable* ProjectileTable;
-
+	
+public:
+	TUniquePtr<WPDataManager> DataManager;
 	
 };

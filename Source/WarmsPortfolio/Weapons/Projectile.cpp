@@ -9,6 +9,19 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 
+#include "../DataTableStructures.h"
+
+FProjectileInfo& FProjectileInfo::operator=(const FProjectileData& tableData)
+{
+	ProjectileRadius = tableData.Radius;
+	MaxSpeed = tableData.MaxSpeed;
+	Weight = tableData.Weight;
+	AttackPower = tableData.AttackPower;
+	ExplodeRange = tableData.ExplodeRange;
+
+	return *this;
+}
+
 AProjectile::AProjectile()
 {
 	mCollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
@@ -41,6 +54,7 @@ AProjectile::AProjectile()
 	
 	//SetActorEnableCollision(true);
 	//mCollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	
 }
 
 void AProjectile::PostInitializeComponents()
@@ -61,6 +75,11 @@ void AProjectile::PreInitializeComponents()
 }
 
 
+void AProjectile::SetProjectileInfo(const FProjectileData* ProjectileData, float InitialSpeed)
+{
+	mProjectileInfo = *ProjectileData;
+	mProjectileInfo.InitialSpeed = InitialSpeed;
+}
 
 inline void AProjectile::Explode(const FHitResult& Impact)
 {
@@ -78,6 +97,7 @@ inline void AProjectile::Explode(const FHitResult& Impact)
 
 
 		AProjectileExplosionEffect* const EffectActor = GetWorld()->SpawnActorDeferred<AProjectileExplosionEffect>(mExplosionFX, SpawnTransform);
+		//AProjectileExplosionEffect* const EffectActor = GetWorld()->SpawnActorDeferred<AProjectileExplosionEffect>(AProjectileExplosionEffect::StaticClass(), SpawnTransform);
 		//auto EffectActor = NewObject<AProjectileExplosionEffect>(GetWorld(), mExplosionFX);
 		UE_LOG(LogTemp, Error, TEXT("SpawnActorDeffered End"));
 		if (EffectActor)

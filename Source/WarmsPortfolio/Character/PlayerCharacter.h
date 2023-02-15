@@ -13,6 +13,7 @@ class AProjectile;
 class AWarmsPortfolioProjectile;
 class UWidgetComponent;
 class UStatComponent;
+class UDataTable;
 
 UCLASS()
 class WARMSPORTFOLIO_API APlayerCharacter : public ACharacter
@@ -69,6 +70,8 @@ public:
 	void UpDown(float Value);
 	void LeftRight(float Value);
 	void Yaw(float Value);
+
+	//발사체를 발사하는 함수
 	void OnFire();
 	void OnFireRight();
 
@@ -89,4 +92,6 @@ public:
 	virtual void PreInitializeComponents() override;
 	//virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved,
 	//	FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
+
+	static UDataTable* mProjectileTable;
 };

@@ -2,6 +2,8 @@
 
 
 #include "DataTableStructures.h"
+#include "Weapons/Projectile.h"
+
 
 // Sets default values
 ADataTableStructures::ADataTableStructures()

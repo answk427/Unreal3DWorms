@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Weapon.h"
+#include "WarmsPortfolio/DataTableStructures.h"
 #include "Projectile.generated.h"
 
 class USphereComponent;
@@ -35,10 +36,14 @@ public:
 	UPROPERTY(EditAnywhere)
 	float ExplodeRange; //폭발범위
 
+
 public:
 	FProjectileInfo() :
 		ProjectileRadius(5.0f), InitialSpeed(3000.0f), MaxSpeed(3000.0f),
 		Weight(10.0f), AttackPower(10.0f),ExplodeRange(100.0f){}
+
+	FProjectileInfo& operator=(const FProjectileData& tableData);
+	
 };
 
 UCLASS()
@@ -55,6 +60,7 @@ public:
 	UPROPERTY()
 	float mCurrAttackPower;
 
+	void SetProjectileInfo(const FProjectileData* ProjectileData, float InitialSpeed);
 protected:
 	//발사체 Collision
 	UPROPERTY(VisibleDefaultsOnly, Category=Projectile)
@@ -72,12 +78,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= Projectile, meta = (AllowPrivateAccess))
 	FProjectileInfo mProjectileInfo;
 
-	FProjectileData* mProjectileData;
+	
+	
 
 	virtual void Explode(const FHitResult& Impact);
 
 	virtual void BeginPlay() override;
-
+		
 	virtual void ApplyDamage(const FHitResult& Impact);
 };
 
@@ -88,5 +95,6 @@ inline void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	SetLifeSpan(10.0f);
+	
 }
 

@@ -3,6 +3,7 @@
 
 #include "PlayerCharacter.h"
 
+#include <Kismet/GameplayStatics.h>
 #include <GameFramework/SpringArmComponent.h>
 #include <Camera/CameraComponent.h>
 #include <Components/CapsuleComponent.h>
@@ -11,9 +12,15 @@
 #include <Components/SceneComponent.h>
 #include "../Weapons/Projectile.h"
 #include "../WarmsPortfolioProjectile.h"
+
 #include "StatComponent.h"
 #include "../UI/HpBarWidget.h"
+#include "../WPGameInstance.h"
 
+#include "Engine/DataTable.h"
+#include "../DataTableStructures.h"
+
+UDataTable* APlayerCharacter::mProjectileTable = nullptr;
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -71,7 +78,8 @@ APlayerCharacter::APlayerCharacter()
 		mHpBarWidget->SetWidgetClass(UW.Class);
 		mHpBarWidget->SetDrawSize(FVector2D(200.0f, 100.0f));
 	}
-
+	
+		
 	//verify(mStatComponent != nullptr);
 
 }
@@ -80,6 +88,14 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	if(mProjectileTable == nullptr)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Character BeginPlay ProjectileTable nullptr"));
+		static UWPGameInstance* gameInstance = Cast<UWPGameInstance>(GetGameInstance());
+		if (gameInstance)
+			mProjectileTable = gameInstance->DataManager->GetTable(FName("Projectile"));
+	}
+	
 }
 
 // Called every frame
@@ -131,9 +147,18 @@ void APlayerCharacter::Yaw(float Value)
 
 void APlayerCharacter::OnFire()
 {
-	//GetWorld()->SpawnActor(mProjectile, )
 	// try and fire a projectile
 
+	//Projectile의 UCLASS를 가지고 있는 데이터테이블을 가져옴.
+	/*static UWPGameInstance* gameInstance = Cast<UWPGameInstance>(GetGameInstance());
+	check(gameInstance);*/
+	//UDataTable* projectileTable = gameInstance->DataManager->GetTable(FName("Projectile"));
+	check(mProjectileTable);
+
+	const FProjectileData* currProjectileData = mProjectileTable->FindRow<FProjectileData>(FName(TEXT("GrenadeTest")), TEXT("OnFireProjectileTable"));
+	mProjectile = currProjectileData->ProjectileClass;
+
+	
 	if (mProjectile != nullptr)
 	{
 		UWorld* const World = GetWorld();
@@ -154,8 +179,15 @@ void APlayerCharacter::OnFire()
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
+			UE_LOG(LogTemp, Error, TEXT("Spawn AProjectile"));
 			// spawn the projectile at the muzzle
-			World->SpawnActor<AProjectile>(mProjectile, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			//World->SpawnActor<AProjectile>(mProjectile, SpawnLocation, SpawnRotation, ActorSpawnParams);
+
+			//ProjectileMovement 컴포넌트가 초기화 되기 전에 해당 발사체의 정보를 설정하고 스폰
+			const FTransform SpawnTr(SpawnRotation, SpawnLocation);
+			AProjectile* SpawnedProjectile = World->SpawnActorDeferred<AProjectile>(mProjectile, SpawnTr, this, this);
+			SpawnedProjectile->SetProjectileInfo(currProjectileData, 1600.0f);
+			UGameplayStatics::FinishSpawningActor(SpawnedProjectile, SpawnTr);
 		}
 	}
 

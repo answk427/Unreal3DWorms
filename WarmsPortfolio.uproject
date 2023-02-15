@@ -1,17 +1,18 @@
 {
-  "FileVersion": 3,
-  "EngineAssociation": "4.27",
-  "Category": "",
-  "Description": "",
-  "Modules": [
-    {
-      "Name": "WarmsPortfolio",
-      "Type": "Runtime",
-      "LoadingPhase": "Default",
-      "AdditionalDependencies": [
-        "Engine",
-        "UMG"
-      ]
-    }
-  ]
+	"FileVersion": 3,
+	"EngineAssociation": "4.27",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "WarmsPortfolio",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"UMG",
+				"CoreUObject"
+			]
+		}
+	]
 }
