@@ -8,10 +8,11 @@
 
 
 
-WPDataManager::WPDataManager()
+UWPDataManager::UWPDataManager()
 {
 	static ConstructorHelpers::FObjectFinder<UDataTable> tables(TEXT("DataTable'/Game/DataTables/InitDataTables.InitDataTables'"));
 
+	
 	if (tables.Succeeded())
 	{
 		DataTables = tables.Object;
@@ -19,11 +20,9 @@ WPDataManager::WPDataManager()
 	}
 }
 
-WPDataManager::~WPDataManager()
-{
-}
 
-void WPDataManager::InitDataTables()
+
+void UWPDataManager::InitDataTables()
 {
 	if (DataTables)
 	{
@@ -45,7 +44,7 @@ void WPDataManager::InitDataTables()
 	
 }
 
-UDataTable* WPDataManager::GetTable(const FName& TableName)
+UDataTable* UWPDataManager::GetTable(const FName& TableName)
 {
 	UDataTable** ppDataTable = DataTableMap.Find(TableName);
 

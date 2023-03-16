@@ -35,7 +35,7 @@ void AGrenade::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	UE_LOG(LogTemp, Warning, TEXT("Grenade Tick Velocity : %f"), mProjectileMovement->Velocity.Size());
+	//UE_LOG(LogTemp, Warning, TEXT("Grenade Tick Velocity : %f"), mProjectileMovement->Velocity.Size());
 	
 
 	if(mProjectileMovement->Velocity.IsNearlyZero() && !bStopped)

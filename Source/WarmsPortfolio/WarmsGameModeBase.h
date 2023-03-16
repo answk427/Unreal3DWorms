@@ -21,6 +21,8 @@ class WARMSPORTFOLIO_API AWarmsGameModeBase : public AGameModeBase
 	virtual void BeginPlay() override;
 
 public:
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+
 	TSubclassOf<UUserWidget> HUDWidget;
 	UUserWidget* currentWidget;
 	

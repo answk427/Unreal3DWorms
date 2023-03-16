@@ -25,9 +25,15 @@ AWarmsGameModeBase::AWarmsGameModeBase()
 			currentWidget->AddToViewport();
 		}
 	}
+	
 }
 
 void AWarmsGameModeBase::BeginPlay()
 {
 	
+}
+
+void AWarmsGameModeBase::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
 }

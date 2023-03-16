@@ -86,6 +86,9 @@ protected:
 	virtual void BeginPlay() override;
 		
 	virtual void ApplyDamage(const FHitResult& Impact);
+
+public:
+	virtual void SetObjectType() override;
 };
 
 

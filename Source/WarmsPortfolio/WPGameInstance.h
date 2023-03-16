@@ -24,6 +24,7 @@ public:
 	virtual void Init() override;
 	
 public:
-	TUniquePtr<WPDataManager> DataManager;
+	UPROPERTY()
+	UWPDataManager* DataManager;
 	
 };

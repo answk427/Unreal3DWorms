@@ -7,6 +7,7 @@
 
 #include "CharacterMovementTest.generated.h"
 
+class ULevelStreaming;
 
 UCLASS()
 class WARMSPORTFOLIO_API ACharacterMovementTest : public AActor
@@ -27,4 +28,5 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UCharacterMovementComponent* characterMovementComp;
+		
 };

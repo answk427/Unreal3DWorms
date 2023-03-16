@@ -20,6 +20,13 @@
 #include "Engine/DataTable.h"
 #include "../DataTableStructures.h"
 
+#include "FInventory.h"
+#include "../UI/InventoryWeaponWidget.h"
+#include "Engine/TextureRenderTarget2D.h"
+#include "WarmsPortfolio/UI/InventoryWeaponEntry.h"
+#include "../CaptureHelper.h"
+#include "Components/TextBlock.h"
+
 UDataTable* APlayerCharacter::mProjectileTable = nullptr;
 
 // Sets default values
@@ -51,11 +58,11 @@ APlayerCharacter::APlayerCharacter()
 	mProjectileWarms2 = uprojectile;
 
 
-		
+
 	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APlayerCharacter::OnHit);
 	GetMesh()->OnComponentHit.AddDynamic(this, &APlayerCharacter::OnHit);
-	
-	
+
+
 	GetCapsuleComponent()->BodyInstance.bNotifyRigidBodyCollision = true;
 	GetMesh()->BodyInstance.bNotifyRigidBodyCollision = true;
 
@@ -63,7 +70,7 @@ APlayerCharacter::APlayerCharacter()
 	mStatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("CharacterStatComp"));
 
 	//HpBar 위젯
-	
+
 	mHpBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HpWidget"));
 	mHpBarWidget->SetupAttachment(GetMesh());
 	mHpBarWidget->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
@@ -71,16 +78,16 @@ APlayerCharacter::APlayerCharacter()
 
 	static ConstructorHelpers::FClassFinder<UHpBarWidget> UW(
 		TEXT("WidgetBlueprint'/Game/UI/HP.HP_C'"));
-	
+
 
 	if (UW.Succeeded())
 	{
 		mHpBarWidget->SetWidgetClass(UW.Class);
 		mHpBarWidget->SetDrawSize(FVector2D(200.0f, 100.0f));
 	}
-	
-		
-	//verify(mStatComponent != nullptr);
+
+	//인벤토리 위젯
+	mInventory = MakeShared<FInventory>();
 
 }
 
@@ -88,13 +95,16 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	if(mProjectileTable == nullptr)
+
+	InitInventoryWidget();
+	if (mProjectileTable == nullptr)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Character BeginPlay ProjectileTable nullptr"));
 		static UWPGameInstance* gameInstance = Cast<UWPGameInstance>(GetGameInstance());
 		if (gameInstance)
 			mProjectileTable = gameInstance->DataManager->GetTable(FName("Projectile"));
 	}
+
 	
 }
 
@@ -126,6 +136,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("Yaw"), this, &APlayerCharacter::Yaw);
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &APawn::AddControllerPitchInput);
 
+	PlayerInputComponent->BindAction(TEXT("OpenInventory"), EInputEvent::IE_Pressed, this, &APlayerCharacter::OpenInventory);
 }
 
 void APlayerCharacter::UpDown(float Value)
@@ -158,24 +169,24 @@ void APlayerCharacter::OnFire()
 	const FProjectileData* currProjectileData = mProjectileTable->FindRow<FProjectileData>(FName(TEXT("GrenadeTest")), TEXT("OnFireProjectileTable"));
 	mProjectile = currProjectileData->WeaponClass;
 
-	
+
 	if (mProjectile != nullptr)
 	{
 		UWorld* const World = GetWorld();
-			if (World != nullptr)
-			{
-				const FRotator SpawnRotation = GetControlRotation();
+		if (World != nullptr)
+		{
+			const FRotator SpawnRotation = GetControlRotation();
 			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 			//임시 하드코딩 offset 벡터
 			FVector GunOffset(100.0f, 0.0f, 10.0f);
 			FVector playerPos = GetActorLocation();
-				
+
 			const FVector SpawnLocation = ((mGunPos != nullptr) ? mGunPos->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
 
-		/*	UE_LOG(LogTemp, Warning, TEXT("Player Pos : %f %f %f  SpawnPos = %f %f %f"), 
-				playerPos.X, playerPos.Y, playerPos.Z,
-				SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);*/
-			//Set Spawn Collision Handling Override
+			/*	UE_LOG(LogTemp, Warning, TEXT("Player Pos : %f %f %f  SpawnPos = %f %f %f"),
+					playerPos.X, playerPos.Y, playerPos.Z,
+					SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);*/
+					//Set Spawn Collision Handling Override
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
@@ -213,7 +224,7 @@ void APlayerCharacter::OnFire()
 float APlayerCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator,
 	AActor* DamageCauser)
 {
-	
+
 	UE_LOG(LogTemp, Warning, TEXT("TakeDamage Function Called"));
 	//주로 ApplyRadialDamage에서 호출 됨
 	if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
@@ -222,7 +233,7 @@ float APlayerCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent
 		mStatComponent->SetHp((float)mStatComponent->GetHp() - Damage);
 		UE_LOG(LogTemp, Warning, TEXT("TakeDamage CurrentHp : %f"), mStatComponent->GetHp());
 	}
-	
+
 	return Damage;
 }
 
@@ -231,7 +242,7 @@ void APlayerCharacter::OnFireRight()
 {
 	//GetWorld()->SpawnActor(mProjectile, )
 	// try and fire a projectile
-	
+
 	if (mProjectileWarms2 != nullptr)
 	{
 		UWorld* const World = GetWorld();
@@ -245,10 +256,10 @@ void APlayerCharacter::OnFireRight()
 
 			const FVector SpawnLocation = ((mGunPos != nullptr) ? mGunPos->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
 
-	/*		UE_LOG(LogTemp, Warning, TEXT("Player Pos : %f %f %f  SpawnPos = %f %f %f"),
-				playerPos.X, playerPos.Y, playerPos.Z,
-				SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);*/
-			//Set Spawn Collision Handling Override
+			/*		UE_LOG(LogTemp, Warning, TEXT("Player Pos : %f %f %f  SpawnPos = %f %f %f"),
+						playerPos.X, playerPos.Y, playerPos.Z,
+						SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);*/
+						//Set Spawn Collision Handling Override
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
@@ -275,6 +286,85 @@ void APlayerCharacter::OnFireRight()
 	//}
 }
 
+void APlayerCharacter::InitInventoryWidget()
+{
+
+	mInventoryWidget = CreateWidget<UInventoryWeaponWidget>(GetWorld(), mInventoryWidgetClass);
+	check(mInventoryWidget);
+	mInventoryWidget->AddToViewport();
+	mInventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+	
+	UInventoryWeaponWidget* InventoryInstance = Cast<UInventoryWeaponWidget>
+		(mInventoryWidget);
+
+	if (InventoryInstance)
+	{
+		InventoryInstance->BindInventory(mInventory);
+	}
+	
+	
+}
+
+void APlayerCharacter::OpenInventory()
+{
+	
+	if (mInventoryWidget)
+	{
+		//여긴 테스트용 코드
+		//mInventory->AddWeaponItem(FItem(FName(TEXT("GrenadeTest")), EObjectTypeName::Projectile));
+		mEntry = Cast<UInventoryWeaponEntry>(CreateWidget(GetWorld(), mEntryClass));
+		UTextureRenderTarget2D* RenderTarget = NewObject<UTextureRenderTarget2D>(mEntry);
+		UCaptureHelper::Instance()->DrawActorToTexture(mProjectile, RenderTarget, 256, 256);
+		UMaterialInstanceDynamic* MaterialInstance = UMaterialInstanceDynamic::Create(UCaptureHelper::Instance()->ItemEntryMat, mEntry);
+		MaterialInstance->SetTextureParameterValue(TEXT("ItemTexture"), RenderTarget);
+		
+		mEntry->InitEntry(RenderTarget, MaterialInstance, FName(TEXT("hihi")));
+
+		UInventoryWeaponWidget* Inventory = Cast<UInventoryWeaponWidget>(mInventoryWidget);
+		check(Inventory != nullptr);
+
+		auto mEntry2 = Cast<UInventoryWeaponEntry>(CreateWidget(GetWorld(), mEntryClass));
+		mEntry2->WeaponTextBlock->SetText(FText::FromString(FString(TEXT("TwoTwo"))));
+		
+		auto mEntry3 = Cast<UInventoryWeaponEntry>(CreateWidget(GetWorld(), mEntryClass));
+		mEntry3->WeaponTextBlock->SetText(FText::FromString(FString(TEXT("ThreeThree"))));
+
+		Inventory->AddToTileView(mEntry, mEntryClass);
+		Inventory->AddToTileView(mEntry2, mEntryClass);
+		Inventory->AddToTileView(mEntry3, mEntryClass);
+
+		if (mEntry)
+			mEntry->AddToViewport(0);
+
+
+		auto Visibility = mInventoryWidget->GetVisibility();
+		
+		UE_LOG(LogTemp, Warning, TEXT("OpenInventory mInventoryWidget not Null"));
+
+		switch(Visibility)
+		{
+			case ESlateVisibility::Collapsed:
+				mInventoryWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+				UE_LOG(LogTemp, Warning, TEXT("Visibility is Collapsed"));
+				break;
+
+			case ESlateVisibility::SelfHitTestInvisible:
+				mInventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+				UE_LOG(LogTemp, Warning, TEXT("Visibility is SelfHitTestInvisible"));
+				break;
+
+		default:
+			UE_LOG(LogTemp, Warning, TEXT("Visibility is Default"));
+			break;
+		}
+					
+	}
+	else
+		UE_LOG(LogTemp, Warning, TEXT("OpenInventory mInventoryWidget is Null"));
+
+
+}
+
 void APlayerCharacter::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter OnHit, OtherActotr : %s"), *OtherActor->GetName());
@@ -283,7 +373,7 @@ void APlayerCharacter::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, U
 void APlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	
+
 	mHpBarWidget->InitWidget();
 
 	verify(mStatComponent != nullptr);
@@ -292,6 +382,8 @@ void APlayerCharacter::PostInitializeComponents()
 	{
 		hpBarInstance->BindingStatComp(mStatComponent);
 	}
+
+	
 }
 
 void APlayerCharacter::PreInitializeComponents()

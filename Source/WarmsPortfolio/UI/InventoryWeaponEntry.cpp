@@ -6,14 +6,32 @@
 #include <Components/TextBlock.h>
 
 #include "Engine/TextureRenderTarget2D.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 
 
-void UInventoryWeaponEntry::InitEntry(UTextureRenderTarget2D* RenderTarget, const FName& WeaponName)
+void UInventoryWeaponEntry::InitEntry(UTextureRenderTarget2D* RenderTarget, UMaterialInstanceDynamic* RenderTargetMat, const FName& WeaponName)
 {
-	UTexture* Texture2D = RenderTargetToTexture(RenderTarget);
-	SetWeaponImageTexture(Texture2D, WeaponName);
+	
+	/*UTexture* Texture2D = RenderTargetToTexture(RenderTarget);
+	SetWeaponImageTexture(Texture2D, WeaponName);*/
+	
+	if(RenderTargetMat != nullptr)
+	{
+		WeaponImage->SetBrushFromMaterial(RenderTargetMat);
+	}
+		
+	//WeaponImage->GetDynamicMaterial()->BlendMode = EBlendMode::BLEND_Translucent;
 	WeaponTextBlock->SetText(FText::FromName(WeaponName));
+	
+	
 }
+
+void UInventoryWeaponEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
+{
+	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
+	WeaponTextBlock->SetText(FText::FromString(FString(TEXT("NativeOnList"))));
+}
+
 
 UTexture2D* UInventoryWeaponEntry::RenderTargetToTexture(UTextureRenderTarget2D* RenderTarget)
 {

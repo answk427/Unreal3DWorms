@@ -2,12 +2,11 @@
 
 
 #include "WPGameInstance.h"
-
+#include "CaptureHelper.h"
 
 UWPGameInstance::UWPGameInstance()
 {
-	DataManager = MakeUnique<WPDataManager>();
-	
+	DataManager = CreateDefaultSubobject<UWPDataManager>(TEXT("DataManager"));
 }
 
 
@@ -17,5 +16,7 @@ void UWPGameInstance::Init()
 	DataManager->InitDataTables();
 
 	UE_LOG(LogClass, Warning, TEXT("%s"), TEXT("Game Instance Init!"));
+
+	UCaptureHelper::Instance()->Init(GetWorld());
 }
 

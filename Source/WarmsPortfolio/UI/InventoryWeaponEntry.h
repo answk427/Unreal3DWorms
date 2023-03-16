@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Blueprint/IUserObjectListEntry.h"
 #include "InventoryWeaponEntry.generated.h"
 
 /**
@@ -12,8 +13,9 @@
 class UImage;
 class UTextBlock;
 
+
 UCLASS()
-class WARMSPORTFOLIO_API UInventoryWeaponEntry : public UUserWidget
+class WARMSPORTFOLIO_API UInventoryWeaponEntry : public UUserWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
 
@@ -28,9 +30,10 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* WeaponTextBlock;
 
-	void InitEntry(UTextureRenderTarget2D* RenderTarget, const FName& WeaponName);
+	void InitEntry(UTextureRenderTarget2D* RenderTarget, UMaterialInstanceDynamic* RenderTargetMat, const FName& WeaponName);
 
-	
+protected:
+	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;
 };
 
 

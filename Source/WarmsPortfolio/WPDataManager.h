@@ -3,23 +3,49 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameObjectTypes.h"
+#include "WPDataManager.generated.h"
+
 
 /**
  * 
  */
 class UDataTable;
+class AWeapon;
 struct FInitDataTables;
 
-class WARMSPORTFOLIO_API WPDataManager
+
+USTRUCT()
+struct FDataTableName 
 {
+	GENERATED_BODY()
+	
+	FDataTableName()
+	{
+		DataTableNames.Init(FName(""), 10);
+		DataTableNames[EObjectTypeName::Projectile] = "Projectile";
+	}
+
+	TArray<FName> DataTableNames;
 public:
-	WPDataManager();
-	~WPDataManager();
+	FName operator()(EObjectTypeName i) { return DataTableNames[i]; }
+};
+
+UCLASS()
+class WARMSPORTFOLIO_API UWPDataManager : public UObject
+{
+	GENERATED_BODY()
+public:
+	UWPDataManager();
+	
 
 public:
 	void InitDataTables();
 	UDataTable* GetTable(const FName& TableName);
 	
+public:
+	UPROPERTY()
+	FDataTableName GetDataTableName;
 	
 private:
 	//게임이 시작될 때 로딩할 데이터테이블의 집합

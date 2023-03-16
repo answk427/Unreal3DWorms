@@ -14,6 +14,7 @@ class AWarmsPortfolioProjectile;
 class UWidgetComponent;
 class UStatComponent;
 class UDataTable;
+struct FInventory;
 
 UCLASS()
 class WARMSPORTFOLIO_API APlayerCharacter : public ACharacter
@@ -52,16 +53,28 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Projectile")
 	TSubclassOf<AWarmsPortfolioProjectile> mProjectileWarms2;
 
-	//HpBar 위젯컴포넌트
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Widget")
-	UWidgetComponent* mHpBarWidgetComp;*/
 
+	//스탯 관련 컴포넌트
 	UPROPERTY(VisibleAnywhere)
 	UStatComponent* mStatComponent;
-
+	//Hp Bar 위젯
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
 	UWidgetComponent* mHpBarWidget;
-	
+
+	//각 캐릭터마다 가지고 있는 인벤토리
+	TSharedPtr<FInventory> mInventory;
+	//인벤토리 블루프린트 위젯
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
+	TSubclassOf<UUserWidget> mInventoryWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Widget")
+	UUserWidget* mInventoryWidget;
+ 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
+	class UInventoryWeaponEntry* mEntry;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
+	TSubclassOf<UUserWidget> mEntryClass;
 
 public:
 	//void TestFunc();
@@ -75,6 +88,10 @@ public:
 	void OnFire();
 	void OnFireRight();
 
+	void InitInventoryWidget();
+	void OpenInventory();
+
+	
 public:
 	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator,
 		AActor* DamageCauser) override;

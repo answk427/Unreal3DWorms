@@ -127,3 +127,8 @@ void AProjectile::ApplyDamage(const FHitResult& Impact)
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), mProjectileInfo.AttackPower, Impact.ImpactPoint,
 		mProjectileInfo.ExplodeRange, nullptr, Ignores, this);
 }
+
+void AProjectile::SetObjectType()
+{
+	GameObjectType = EObjectTypeName::Projectile;
+}
