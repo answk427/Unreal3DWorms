@@ -33,7 +33,7 @@ protected:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void BeginPlay() override;
 	virtual void Explode(const FHitResult& Impact) override;
-
+	
 public:
 	virtual void PostInitializeComponents() override;
 

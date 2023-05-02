@@ -27,6 +27,9 @@ void AWeapon::SetObjectType()
 	GameObjectType = EObjectTypeName::Weapon;
 }
 
+
+
+
 //
 //// Called every frame
 //void AWeapon::Tick(float DeltaTime)

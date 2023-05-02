@@ -61,6 +61,7 @@ public:
 	float mCurrAttackPower;
 
 	void SetProjectileInfo(const FProjectileData* ProjectileData, float InitialSpeed);
+	virtual UShapeComponent* GetCollider() const override;
 protected:
 	//πﬂªÁ√º Collision
 	UPROPERTY(VisibleDefaultsOnly, Category=Projectile)

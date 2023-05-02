@@ -54,4 +54,41 @@ UDataTable* UWPDataManager::GetTable(const FName& TableName)
 		return *ppDataTable;
 }
 
+FWeaponData* UWPDataManager::GetWeaponData(EObjectTypeName ItemType, const FName& ItemName,
+	const FString& ContextString)
+{
+	const FName& TableName = GetDataTableName(ItemType);
+	
+
+	UDataTable* DataTable = GetTable(TableName);
+	if (DataTable == nullptr)
+		return nullptr;
+
+	FWeaponData* dataInfo = DataTable->FindRow<FWeaponData>(ItemName, ContextString);
+	
+
+	return dataInfo;
+}
+
+TArray<FWPItem> UWPDataManager::GetAllItem(EObjectTypeName ItemType)
+{
+	TArray<FWPItem> Items;
+
+	auto TableName = GetDataTableName(ItemType);
+	UDataTable* DataTable = GetTable(TableName);
+	
+	if (DataTable == nullptr)
+		return Items;
+
+	TArray<FWeaponData*> Datas;
+	DataTable->GetAllRows(TEXT("AllItem"), Datas);
+
+	for(auto Data : Datas)
+	{
+		Items.Add(FWPItem(Data->WeaponName, ItemType));
+	}
+
+	return Items;
+}
+
 

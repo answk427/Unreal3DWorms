@@ -68,6 +68,11 @@ void UCaptureHelper::DrawActorToTexture(UClass* ActorClass, UTextureRenderTarget
 
 
 	auto WorldSetting = OffscreenWorld->GetWorldSettings();
+
+	UE_LOG(LogTemp, Warning, TEXT("OffscreenWorld : %p, WorldSetting : %p"), OffscreenWorld, WorldSetting);
+
+	check(GetWorld());
+
 	(WorldSetting->LightmassSettings) = (GetWorld()->GetWorldSettings()->LightmassSettings);
 
 	//현재 월드의 평행광을 모두 복사해 새로운 월드에 추가. 같은 환경 조성
@@ -120,18 +125,33 @@ void UCaptureHelper::DrawActorToTexture(UClass* ActorClass, UTextureRenderTarget
 		FAttachmentTransformRules::KeepRelativeTransform);
 
 	FMinimalViewInfo ViewInfo;
-	ViewInfo.AspectRatio = 1.0f; //종횡비
-	ViewInfo.FOV = 90.0f; //수직시야각
-	ViewInfo.ProjectionMode = ECameraProjectionMode::Perspective;
-	/*ViewInfo.OrthoFarClipPlane = 100.0f;
-	ViewInfo.OrthoNearClipPlane = 10.0f;
-	ViewInfo.OrthoWidth = 50.0f;*/
+	//ViewInfo.AspectRatio = 1.0f; //종횡비
+	//ViewInfo.FOV = 90.0f; //수직시야각
+	//ViewInfo.ProjectionMode = ECameraProjectionMode::Perspective;
 
+	
+	//Mesh의 크기를 얻어옴
+	/*UMeshComponent* MeshComponent = SpawnedActor->FindComponentByClass<UMeshComponent>();
+	FVector BoxExtent = MeshComponent->Bounds.BoxExtent;*/
+	
+	FVector BoxExtent;
+	FVector Origin;
+	SpawnedActor->GetActorBounds(false, Origin, BoxExtent);
+	float MaxExtent = BoxExtent.GetAbsMax();
+	
+	//직교투영 설정
+	ViewInfo.ProjectionMode = ECameraProjectionMode::Orthographic;
+	ViewInfo.OrthoWidth = MaxExtent * 2.5f;
+	ViewInfo.OrthoNearClipPlane = 0.0f;
+	ViewInfo.OrthoFarClipPlane = MaxExtent*3;
+		
 	SceneCaptureComponent->SetCameraView(ViewInfo);
-
+	
+	float CameraDistance;
+	CameraDistance = (10.0f / 8.0f)*(MaxExtent + 1);
 	//카메라의 위치,속성 설정
 	SceneCaptureComponent->bCaptureEveryFrame = false;
-	SceneCaptureComponent->SetRelativeLocation(FVector(-25.0f, 0.f, 0.f));
+	SceneCaptureComponent->SetRelativeLocation(FVector(-CameraDistance, 0.f, 0.f));
 	SceneCaptureComponent->TextureTarget = RenderTarget;
 	SceneCaptureComponent->CaptureSource = SCS_SceneColorHDR;
 	SceneCaptureComponent->RegisterComponent();

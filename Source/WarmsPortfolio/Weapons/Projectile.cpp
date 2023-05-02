@@ -81,6 +81,11 @@ void AProjectile::SetProjectileInfo(const FProjectileData* ProjectileData, float
 	mProjectileInfo.InitialSpeed = InitialSpeed;
 }
 
+UShapeComponent* AProjectile::GetCollider() const
+{
+	return mCollisionComp;
+}
+
 inline void AProjectile::Explode(const FHitResult& Impact)
 {
 	// 타격지점의 노말벡터 방향에서 폭발

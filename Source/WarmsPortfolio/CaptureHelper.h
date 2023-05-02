@@ -18,8 +18,6 @@ class WARMSPORTFOLIO_API UCaptureHelper : public UObject
 public:
 	UCaptureHelper();
 private:
-	
-
 	UPROPERTY()
 	UWorld* World = nullptr;
 				

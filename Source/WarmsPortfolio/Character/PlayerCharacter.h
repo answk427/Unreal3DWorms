@@ -14,7 +14,11 @@ class AWarmsPortfolioProjectile;
 class UWidgetComponent;
 class UStatComponent;
 class UDataTable;
+class AMyRope;
 struct FInventory;
+struct FPlayerEquipments;
+
+
 
 UCLASS()
 class WARMSPORTFOLIO_API APlayerCharacter : public ACharacter
@@ -34,7 +38,7 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* mSpringArm;
 
@@ -43,9 +47,6 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly)
 	USceneComponent* mGunPos;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Projectile")
-	TSubclassOf<AProjectile> mProjectile;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Projectile")
 	TSubclassOf<AWarmsPortfolioProjectile> mProjectileWarms;
@@ -63,6 +64,8 @@ public:
 
 	//각 캐릭터마다 가지고 있는 인벤토리
 	TSharedPtr<FInventory> mInventory;
+	//캐릭터가 착용중인 장비창
+	TSharedPtr<FPlayerEquipments> mEquipments;
 	//인벤토리 블루프린트 위젯
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
 	TSubclassOf<UUserWidget> mInventoryWidgetClass;
@@ -76,6 +79,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
 	TSubclassOf<UUserWidget> mEntryClass;
 
+	UPROPERTY()
+	AMyRope* mRope;
+
+	UPROPERTY()
+	bool Hanging = false;
+
+	UPROPERTY(EditAnywhere)
+	float RopePower = 10.0f;
 public:
 	//void TestFunc();
 	
@@ -84,6 +95,10 @@ public:
 	void LeftRight(float Value);
 	void Yaw(float Value);
 
+	
+	void Pull(float Value);
+	void Push(float Value);
+
 	//발사체를 발사하는 함수
 	void OnFire();
 	void OnFireRight();
@@ -91,7 +106,8 @@ public:
 	void InitInventoryWidget();
 	void OpenInventory();
 
-	
+	void AcquireItem();
+		
 public:
 	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator,
 		AActor* DamageCauser) override;
@@ -105,10 +121,15 @@ public:
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	UFUNCTION()
+	void OnSphereComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	virtual void PostInitializeComponents() override;
 	virtual void PreInitializeComponents() override;
+	virtual void Jump() override;
 	//virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved,
 	//	FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
 	static UDataTable* mProjectileTable;
+
 };

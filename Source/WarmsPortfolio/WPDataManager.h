@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameObjectTypes.h"
+#include "UI/ItemStruct.h"
 #include "WPDataManager.generated.h"
 
 
@@ -12,7 +13,9 @@
  */
 class UDataTable;
 class AWeapon;
+struct FWeaponData;
 struct FInitDataTables;
+
 
 
 USTRUCT()
@@ -42,7 +45,9 @@ public:
 public:
 	void InitDataTables();
 	UDataTable* GetTable(const FName& TableName);
-	
+
+	FWeaponData* GetWeaponData(EObjectTypeName ItemType, const FName& ItemName, const FString& ContextString);
+	TArray<FWPItem> GetAllItem(EObjectTypeName ItemType);
 public:
 	UPROPERTY()
 	FDataTableName GetDataTableName;

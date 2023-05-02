@@ -12,6 +12,9 @@
  */
 class UImage;
 class UTextBlock;
+class UBorder;
+
+
 
 
 UCLASS()
@@ -30,7 +33,12 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* WeaponTextBlock;
 
-	void InitEntry(UTextureRenderTarget2D* RenderTarget, UMaterialInstanceDynamic* RenderTargetMat, const FName& WeaponName);
+	UPROPERTY(meta = (BindWidget))
+	UBorder* SelectedBorder;
+
+	void InitEntry(UMaterialInstanceDynamic* RenderTargetMat, const FName& WeaponName);
+	void Selected();
+	void UnSelected();
 
 protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject) override;

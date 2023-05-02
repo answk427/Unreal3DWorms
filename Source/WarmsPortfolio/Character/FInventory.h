@@ -3,49 +3,35 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../GameObjectTypes.h"
+#include "../UI/ItemStruct.h"
 #include "FInventory.generated.h"
+
 
 
 /**
  * 
  */
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FAddWeaponItemDelegate, const FItem&);
-DECLARE_MULTICAST_DELEGATE_OneParam(FRemoveWeaponItemDelegate, const FItem&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FAddWeaponItemDelegate, const FWPItem&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FRemoveWeaponItemDelegate, const FWPItem&);
+
 
 USTRUCT()
-struct FItem
-{
-	GENERATED_BODY()
-
-	FItem() : GameObjectType(EObjectTypeName::UnknownItem){}
-	FItem(FName itemName, EObjectTypeName type) : ItemName(itemName), GameObjectType(type){}
-
-	FName ItemName;
-	EObjectTypeName GameObjectType;
-
-	bool operator==(const FItem& other) const
-	{
-		return ItemName == other.ItemName && GameObjectType == other.GameObjectType;
-	}
-};
-
-
 struct WARMSPORTFOLIO_API FInventory
 {
+	GENERATED_BODY()
 public:
 	FInventory();
 	~FInventory();
 
-	TArray<FItem> Weapons;
+	TArray<FWPItem> Weapons;
 
 	FAddWeaponItemDelegate AddWeaponDelegate;
 	FRemoveWeaponItemDelegate RemoveWeaponDelegate;
 	
 public:
-	void AddWeaponItem(const FItem& item);
-	void RemoveWeaponItem(const FItem& item);
+	void AddWeaponItem(const FWPItem& item);
+	void RemoveWeaponItem(const FWPItem& item);
 	void RemoveWeaponItem(const int idx);
-	
+		
 };

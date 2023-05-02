@@ -4,32 +4,41 @@
 #include "InventoryWeaponEntry.h"
 #include <Components/Image.h>
 #include <Components/TextBlock.h>
+#include <Components/Border.h>
 
 #include "Engine/TextureRenderTarget2D.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
+#include "ItemStruct.h"
 
 
-void UInventoryWeaponEntry::InitEntry(UTextureRenderTarget2D* RenderTarget, UMaterialInstanceDynamic* RenderTargetMat, const FName& WeaponName)
+
+void UInventoryWeaponEntry::InitEntry(UMaterialInstanceDynamic* RenderTargetMat, const FName& WeaponName)
 {
-	
-	/*UTexture* Texture2D = RenderTargetToTexture(RenderTarget);
-	SetWeaponImageTexture(Texture2D, WeaponName);*/
-	
 	if(RenderTargetMat != nullptr)
 	{
 		WeaponImage->SetBrushFromMaterial(RenderTargetMat);
 	}
-		
-	//WeaponImage->GetDynamicMaterial()->BlendMode = EBlendMode::BLEND_Translucent;
+
 	WeaponTextBlock->SetText(FText::FromName(WeaponName));
 	
-	
+}
+
+void UInventoryWeaponEntry::Selected()
+{
+	SelectedBorder->SetBrushColor(FLinearColor::Red);
+}
+
+void UInventoryWeaponEntry::UnSelected()
+{
+	SelectedBorder->SetBrushColor(FLinearColor::White);
 }
 
 void UInventoryWeaponEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	IUserObjectListEntry::NativeOnListItemObjectSet(ListItemObject);
-	WeaponTextBlock->SetText(FText::FromString(FString(TEXT("NativeOnList"))));
+
+	UListItem* Item = Cast<UListItem>(ListItemObject);
+	InitEntry(Item->GetMaterial(), Item->GetItem().ItemName);
 }
 
 

@@ -29,8 +29,10 @@ void UPlayerAnimation::NativeUpdateAnimation(float DeltaSeconds)
 	if (Character)
 	{
 		IsFalling = Character->GetMovementComponent()->IsFalling();
+		Hanging = Character->Hanging;
 		Vertical = Character->mVertical;
 		Horizontal = Character->mHorizontal;
+
 		//UE_LOG(LogTemp, Error, TEXT("UPlayerAnimation IsFalling : %d, Vertical : %f, Horizontal : %f"), IsFalling, Vertical, Horizontal);
 	}
 

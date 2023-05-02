@@ -11,6 +11,8 @@
 /**
  * 
  */
+class UItemActorManager;
+
 UCLASS()
 class WARMSPORTFOLIO_API AWarmsGameModeBase : public AGameModeBase
 {
@@ -25,5 +27,8 @@ public:
 
 	TSubclassOf<UUserWidget> HUDWidget;
 	UUserWidget* currentWidget;
+
+	UPROPERTY()
+	UItemActorManager* ItemActorManager;
 	
 };

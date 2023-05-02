@@ -11,7 +11,7 @@ FInventory::~FInventory()
 {
 }
 
-void FInventory::AddWeaponItem(const FItem& item)
+void FInventory::AddWeaponItem(const FWPItem& item)
 {
 	bool FindItem = Weapons.Contains(item);
 	//이미 있는 아이템이면 return
@@ -22,7 +22,7 @@ void FInventory::AddWeaponItem(const FItem& item)
 	AddWeaponDelegate.Broadcast(item);
 }
 
-void FInventory::RemoveWeaponItem(const FItem& item)
+void FInventory::RemoveWeaponItem(const FWPItem& item)
 {
 	int idx;
 	bool FindItem = Weapons.Find(item, idx);

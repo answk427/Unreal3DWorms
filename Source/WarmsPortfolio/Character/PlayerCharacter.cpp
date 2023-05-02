@@ -21,11 +21,13 @@
 #include "../DataTableStructures.h"
 
 #include "FInventory.h"
+#include "PlayerEquipments.h"
 #include "../UI/InventoryWeaponWidget.h"
-#include "Engine/TextureRenderTarget2D.h"
-#include "WarmsPortfolio/UI/InventoryWeaponEntry.h"
 #include "../CaptureHelper.h"
 #include "Components/TextBlock.h"
+#include "../Weapons/ItemActor.h"
+#include "../Weapons/MyRope.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UDataTable* APlayerCharacter::mProjectileTable = nullptr;
 
@@ -59,8 +61,9 @@ APlayerCharacter::APlayerCharacter()
 
 
 
-	GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APlayerCharacter::OnHit);
-	GetMesh()->OnComponentHit.AddDynamic(this, &APlayerCharacter::OnHit);
+	//GetCapsuleComponent()->OnComponentHit.AddDynamic(this, &APlayerCharacter::OnHit);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnSphereComponentBeginOverlap);
+	//GetMesh()->OnComponentHit.AddDynamic(this, &APlayerCharacter::OnHit);
 
 
 	GetCapsuleComponent()->BodyInstance.bNotifyRigidBodyCollision = true;
@@ -86,8 +89,18 @@ APlayerCharacter::APlayerCharacter()
 		mHpBarWidget->SetDrawSize(FVector2D(200.0f, 100.0f));
 	}
 
-	//인벤토리 위젯
+	//인벤토리
 	mInventory = MakeShared<FInventory>();
+	//장비창
+	mEquipments = MakeShared<FPlayerEquipments>();
+
+	JumpMaxHoldTime = 3.0f;
+	JumpMaxCount = 2;
+
+	FName WeaponSocket(TEXT("RightHandSocket"));
+	mGunPos = CreateDefaultSubobject<USceneComponent>(TEXT("GunPos"));
+	mGunPos->SetupAttachment(GetMesh(), WeaponSocket);
+
 
 }
 
@@ -105,14 +118,20 @@ void APlayerCharacter::BeginPlay()
 			mProjectileTable = gameInstance->DataManager->GetTable(FName("Projectile"));
 	}
 
-	
+	mRope = GetWorld()->SpawnActor<AMyRope>();
+	//mRope->AttachToComponent(mGunPos, FAttachmentTransformRules::KeepRelativeTransform);
+	mRope->Init(this);
+
 }
 
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	FVector pos;
+
+
+	//GetCharacterMovement()->AddInputVector(FVector(1.0f, 0.f, 0.f));
+
 	//if(mHpBarWidgetComp)
 	//{
 	//	pos = mHpBarWidgetComp->GetComponentLocation();
@@ -137,17 +156,48 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &APawn::AddControllerPitchInput);
 
 	PlayerInputComponent->BindAction(TEXT("OpenInventory"), EInputEvent::IE_Pressed, this, &APlayerCharacter::OpenInventory);
+	PlayerInputComponent->BindAction(TEXT("AcquireItem"), EInputEvent::IE_Pressed, this, &APlayerCharacter::AcquireItem);
+
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Jump);
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &APlayerCharacter::StopJumping);
+
+	PlayerInputComponent->BindAxis(TEXT("Pull"), this, &APlayerCharacter::Pull);
+	PlayerInputComponent->BindAxis(TEXT("Push"), this, &APlayerCharacter::Push);
+
 }
 
 void APlayerCharacter::UpDown(float Value)
 {
+	if (Value == 0)
+		return;
+	if (Hanging)
+	{
+		mRope->AddForceCharacter(0.f, Value);
+	}
+	else
+	{
+		AddMovementInput(GetActorForwardVector(), Value);
+	}
 	AddMovementInput(GetActorForwardVector(), Value);
 	mVertical = Value;
 }
 
 void APlayerCharacter::LeftRight(float Value)
 {
+	if (Value == 0)
+		return;
+		
+	if (Hanging)
+	{
+		mRope->AddForceCharacter(Value, 0.f);
+	}
+	else
+	{
+		AddMovementInput(GetActorRightVector(), Value);
+	}
 	AddMovementInput(GetActorRightVector(), Value);
+
+
 	mHorizontal = Value;
 }
 
@@ -156,21 +206,50 @@ void APlayerCharacter::Yaw(float Value)
 	AddControllerYawInput(Value);
 }
 
+void APlayerCharacter::Pull(float Value)
+{
+	if (Value == 0)
+		return;
+
+	mRope->PullRope();
+
+}
+
+void APlayerCharacter::Push(float Value)
+{
+	if (Value == 0)
+		return;
+
+	mRope->PushRope();
+
+}
+
 void APlayerCharacter::OnFire()
 {
-	// try and fire a projectile
-
-	//Projectile의 UCLASS를 가지고 있는 데이터테이블을 가져옴.
-	/*static UWPGameInstance* gameInstance = Cast<UWPGameInstance>(GetGameInstance());
-	check(gameInstance);*/
-	//UDataTable* projectileTable = gameInstance->DataManager->GetTable(FName("Projectile"));
 	check(mProjectileTable);
 
-	const FProjectileData* currProjectileData = mProjectileTable->FindRow<FProjectileData>(FName(TEXT("GrenadeTest")), TEXT("OnFireProjectileTable"));
-	mProjectile = currProjectileData->WeaponClass;
+	if (Hanging)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter OnFire in Hanging"));
 
+		FVector CameraPosition = mCamera->GetComponentLocation();
+		FRotator CameraRotator = mCamera->GetComponentRotation();
 
-	if (mProjectile != nullptr)
+		mRope->Fire(mGunPos->GetComponentLocation(), CameraPosition, CameraRotator);
+
+		return;
+	}
+
+	//현재 착용중인 무기를 가져옴.
+	const std::pair<FWPItem, FWeaponData>* WeaponData = mEquipments->GetWeapon();
+	//착용중인 무기가 없을 시 리턴
+	if (WeaponData == nullptr)
+		return;
+
+	const FProjectileData* currProjectileData = mProjectileTable->FindRow<FProjectileData>(WeaponData->first.ItemName, TEXT("OnFireProjectileTable"));
+	TSubclassOf<AProjectile> WeaponUClass = currProjectileData->WeaponClass;
+
+	if (WeaponUClass != nullptr)
 	{
 		UWorld* const World = GetWorld();
 		if (World != nullptr)
@@ -183,10 +262,7 @@ void APlayerCharacter::OnFire()
 
 			const FVector SpawnLocation = ((mGunPos != nullptr) ? mGunPos->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
 
-			/*	UE_LOG(LogTemp, Warning, TEXT("Player Pos : %f %f %f  SpawnPos = %f %f %f"),
-					playerPos.X, playerPos.Y, playerPos.Z,
-					SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);*/
-					//Set Spawn Collision Handling Override
+
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
@@ -196,7 +272,7 @@ void APlayerCharacter::OnFire()
 
 			//ProjectileMovement 컴포넌트가 초기화 되기 전에 해당 발사체의 정보를 설정하고 스폰
 			const FTransform SpawnTr(SpawnRotation, SpawnLocation);
-			AProjectile* SpawnedProjectile = World->SpawnActorDeferred<AProjectile>(mProjectile, SpawnTr, this, this);
+			AProjectile* SpawnedProjectile = World->SpawnActorDeferred<AProjectile>(WeaponUClass, SpawnTr, this, this);
 			SpawnedProjectile->SetProjectileInfo(currProjectileData, 1600.0f);
 			UGameplayStatics::FinishSpawningActor(SpawnedProjectile, SpawnTr);
 		}
@@ -218,7 +294,6 @@ void APlayerCharacter::OnFire()
 	//		AnimInstance->Montage_Play(FireAnimation, 1.f);
 	//	}
 	//}
-
 }
 
 float APlayerCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator,
@@ -240,134 +315,107 @@ float APlayerCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent
 
 void APlayerCharacter::OnFireRight()
 {
-	//GetWorld()->SpawnActor(mProjectile, )
-	// try and fire a projectile
+	UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter OnFire in Hanging"));
 
-	if (mProjectileWarms2 != nullptr)
-	{
-		UWorld* const World = GetWorld();
-		if (World != nullptr)
-		{
-			const FRotator SpawnRotation = GetControlRotation();
-			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-			//임시 하드코딩 offset 벡터
-			FVector GunOffset(100.0f, 0.0f, 10.0f);
-			FVector playerPos = GetActorLocation();
+	FVector CameraPosition = mCamera->GetComponentLocation();
+	FRotator CameraRotator = mCamera->GetComponentRotation();
 
-			const FVector SpawnLocation = ((mGunPos != nullptr) ? mGunPos->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
+	mRope->Fire(mGunPos->GetComponentLocation(), CameraPosition, CameraRotator);
 
-			/*		UE_LOG(LogTemp, Warning, TEXT("Player Pos : %f %f %f  SpawnPos = %f %f %f"),
-						playerPos.X, playerPos.Y, playerPos.Z,
-						SpawnLocation.X, SpawnLocation.Y, SpawnLocation.Z);*/
-						//Set Spawn Collision Handling Override
-			FActorSpawnParameters ActorSpawnParams;
-			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-
-			// spawn the projectile at the muzzle
-			World->SpawnActor<AWarmsPortfolioProjectile>(mProjectileWarms2, SpawnLocation, SpawnRotation, ActorSpawnParams);
-		}
-	}
-
-	// try and play the sound if specified
-	//if (FireSound != nullptr)
-	//{
-	//	UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	//}
-
-	//// try and play a firing animation if specified
-	//if (FireAnimation != nullptr)
-	//{
-	//	// Get the animation object for the arms mesh
-	//	UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-	//	if (AnimInstance != nullptr)
-	//	{
-	//		AnimInstance->Montage_Play(FireAnimation, 1.f);
-	//	}
-	//}
 }
 
 void APlayerCharacter::InitInventoryWidget()
 {
-
 	mInventoryWidget = CreateWidget<UInventoryWeaponWidget>(GetWorld(), mInventoryWidgetClass);
 	check(mInventoryWidget);
 	mInventoryWidget->AddToViewport();
 	mInventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
-	
+
 	UInventoryWeaponWidget* InventoryInstance = Cast<UInventoryWeaponWidget>
 		(mInventoryWidget);
 
 	if (InventoryInstance)
 	{
-		InventoryInstance->BindInventory(mInventory);
+		InventoryInstance->BindInventory(mInventory, mEquipments);
+		//InventoryInstance->ItemInventory->OnItemClicked().Add()
 	}
-	
-	
+	 
+
 }
 
 void APlayerCharacter::OpenInventory()
 {
-	
+
 	if (mInventoryWidget)
 	{
 		//여긴 테스트용 코드
 		//mInventory->AddWeaponItem(FItem(FName(TEXT("GrenadeTest")), EObjectTypeName::Projectile));
-		mEntry = Cast<UInventoryWeaponEntry>(CreateWidget(GetWorld(), mEntryClass));
+		/*mEntry = Cast<UInventoryWeaponEntry>(CreateWidget(GetWorld(), mEntryClass));
 		UTextureRenderTarget2D* RenderTarget = NewObject<UTextureRenderTarget2D>(mEntry);
 		UCaptureHelper::Instance()->DrawActorToTexture(mProjectile, RenderTarget, 256, 256);
 		UMaterialInstanceDynamic* MaterialInstance = UMaterialInstanceDynamic::Create(UCaptureHelper::Instance()->ItemEntryMat, mEntry);
 		MaterialInstance->SetTextureParameterValue(TEXT("ItemTexture"), RenderTarget);
-		
-		mEntry->InitEntry(RenderTarget, MaterialInstance, FName(TEXT("hihi")));
+
+		mEntry->InitEntry(RenderTarget, MaterialInstance, FName(TEXT("hihi")));*/
 
 		UInventoryWeaponWidget* Inventory = Cast<UInventoryWeaponWidget>(mInventoryWidget);
 		check(Inventory != nullptr);
-
-		auto mEntry2 = Cast<UInventoryWeaponEntry>(CreateWidget(GetWorld(), mEntryClass));
-		mEntry2->WeaponTextBlock->SetText(FText::FromString(FString(TEXT("TwoTwo"))));
-		
-		auto mEntry3 = Cast<UInventoryWeaponEntry>(CreateWidget(GetWorld(), mEntryClass));
-		mEntry3->WeaponTextBlock->SetText(FText::FromString(FString(TEXT("ThreeThree"))));
-
-		Inventory->AddToTileView(mEntry, mEntryClass);
-		Inventory->AddToTileView(mEntry2, mEntryClass);
-		Inventory->AddToTileView(mEntry3, mEntryClass);
-
-		if (mEntry)
-			mEntry->AddToViewport(0);
-
+		mInventory->AddWeaponItem(FWPItem(FName(TEXT("GrenadeTest")), EObjectTypeName::Projectile));
 
 		auto Visibility = mInventoryWidget->GetVisibility();
-		
+
 		UE_LOG(LogTemp, Warning, TEXT("OpenInventory mInventoryWidget not Null"));
 
-		switch(Visibility)
-		{
-			case ESlateVisibility::Collapsed:
-				mInventoryWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-				UE_LOG(LogTemp, Warning, TEXT("Visibility is Collapsed"));
-				break;
 
-			case ESlateVisibility::SelfHitTestInvisible:
-				mInventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
-				UE_LOG(LogTemp, Warning, TEXT("Visibility is SelfHitTestInvisible"));
-				break;
+		//ESlateVisibility
+
+		switch (Visibility)
+		{
+		case ESlateVisibility::Collapsed:
+			mInventoryWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			UE_LOG(LogTemp, Warning, TEXT("Visibility is Collapsed"));
+			break;
+
+		case ESlateVisibility::SelfHitTestInvisible:
+			mInventoryWidget->SetVisibility(ESlateVisibility::Collapsed);
+			UE_LOG(LogTemp, Warning, TEXT("Visibility is SelfHitTestInvisible"));
+			break;
 
 		default:
 			UE_LOG(LogTemp, Warning, TEXT("Visibility is Default"));
 			break;
 		}
-					
 	}
 	else
 		UE_LOG(LogTemp, Warning, TEXT("OpenInventory mInventoryWidget is Null"));
 
-
 }
+
+void APlayerCharacter::AcquireItem()
+{
+	TArray<AActor*> OverlapItems;
+	GetOverlappingActors(OverlapItems, AItemActor::StaticClass());
+	if (OverlapItems.Num() == 0)
+		return;
+
+	AItemActor* FirstItem = Cast<AItemActor>(OverlapItems[0]);
+	const FWPItem Item = FirstItem->GetItemInfo();
+	mInventory->AddWeaponItem(Item);
+
+	FirstItem->Destroy();
+}
+
+
 
 void APlayerCharacter::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter OnHit, OtherActotr : %s"), *OtherActor->GetName());
+}
+
+void APlayerCharacter::OnSphereComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter BeginOverlap, OtherActotr : %s"), *OtherActor->GetName());
 }
 
 void APlayerCharacter::PostInitializeComponents()
@@ -383,13 +431,25 @@ void APlayerCharacter::PostInitializeComponents()
 		hpBarInstance->BindingStatComp(mStatComponent);
 	}
 
-	
 }
 
 void APlayerCharacter::PreInitializeComponents()
 {
 	Super::PreInitializeComponents();
 	//verify(mStatComponent != nullptr);
+}
+
+void APlayerCharacter::Jump()
+{
+	if (Hanging)
+	{
+		mRope->Deactivate();
+	}
+	else
+	{
+		Super::Jump();
+	}
+
 }
 
 //void APlayerCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp,

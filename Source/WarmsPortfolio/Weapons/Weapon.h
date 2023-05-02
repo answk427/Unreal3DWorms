@@ -25,7 +25,12 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	virtual void SetObjectType() override; 
+	virtual void SetObjectType() override;
+	
+	virtual const UShapeComponent* GetCollider() const
+	{
+		return nullptr;
+	}
 
 	// Called every frame
 	//virtual void Tick(float DeltaTime) override;

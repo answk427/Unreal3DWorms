@@ -16,11 +16,14 @@ struct FWeaponData : public FTableRowBase
 	GENERATED_BODY()
 
 	FWeaponData() : AttackPower(10.0f){}
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
+	FName WeaponName;
 	//°ø°Ý·Â
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	float AttackPower;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	TSubclassOf<AWeapon> WeaponClass;
 };
 

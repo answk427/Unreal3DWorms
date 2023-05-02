@@ -2,8 +2,11 @@
 
 
 #include "WarmsGameModeBase.h"
+
+#include "ItemActorManager.h"
 #include "Character/PlayerCharacter.h"
 #include "UI/MyHUD.h"
+#include "WPGameInstance.h"
 
 AWarmsGameModeBase::AWarmsGameModeBase()
 {
@@ -25,12 +28,31 @@ AWarmsGameModeBase::AWarmsGameModeBase()
 			currentWidget->AddToViewport();
 		}
 	}
+
+	ItemActorManager = CreateDefaultSubobject<UItemActorManager>(TEXT("ItemActorManager"));
+
 	
 }
 
 void AWarmsGameModeBase::BeginPlay()
 {
-	
+	UWPGameInstance* GameInstance = Cast<UWPGameInstance>(GetGameInstance());
+	check(GameInstance);
+	auto DataManager = GameInstance->DataManager;
+
+	//데이터 테이블에 있는 모든 아이템에 대해 아이템엑터(착용X, 습득용) 생성
+	for(int i=0; i<EObjectTypeName::UnknownItem; ++i)
+	{
+		auto Items = DataManager->GetAllItem((EObjectTypeName)i);
+		for(auto& Item : Items)
+		{
+			ItemActorManager->AddItem(Item);
+		}
+	}
+
+	//일정 시간마다 레벨에 랜덤아이템 스폰
+	ItemActorManager->SetSpawnTimer(GetWorld(), 5.0f, FVector(-1000.f, -1000.f, 300.f),
+		FVector(1000.f, 1000.f, 350.f));
 }
 
 void AWarmsGameModeBase::PostLogin(APlayerController* NewPlayer)

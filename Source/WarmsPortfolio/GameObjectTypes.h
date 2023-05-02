@@ -10,5 +10,6 @@ enum EObjectTypeName
 {
 	Projectile,
 	Weapon,
+	UtilityWeapon,
 	UnknownItem
 };
