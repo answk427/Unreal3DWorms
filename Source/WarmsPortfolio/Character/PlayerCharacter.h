@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/PostProcessVolume.h"
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
@@ -17,7 +18,8 @@ class UDataTable;
 class AMyRope;
 struct FInventory;
 struct FPlayerEquipments;
-
+class APostProcessVolume;
+class AWeapon;
 
 
 UCLASS()
@@ -45,8 +47,9 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* mCamera;
 
+	//플레이어 오른쪽 손가락, 무기착용위치 Socket에 붙여두는 SceneComponent
 	UPROPERTY(VisibleDefaultsOnly)
-	USceneComponent* mGunPos;
+	USceneComponent* mWeaponPos;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Projectile")
 	TSubclassOf<AWarmsPortfolioProjectile> mProjectileWarms;
@@ -80,6 +83,8 @@ public:
 	TSubclassOf<UUserWidget> mEntryClass;
 
 	UPROPERTY()
+	APostProcessVolume* ActionLine;
+	UPROPERTY()
 	AMyRope* mRope;
 
 	UPROPERTY()
@@ -87,6 +92,14 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	float RopePower = 10.0f;
+
+private:
+	UPROPERTY()
+	AWeapon* mCurrentWeapon = nullptr;
+
+	UPROPERTY()
+	bool bFireHoldDown = false;
+	
 public:
 	//void TestFunc();
 	
@@ -97,17 +110,21 @@ public:
 
 	
 	void Pull(float Value);
+	void PullEnd();
 	void Push(float Value);
 
 	//발사체를 발사하는 함수
-	void OnFire();
+	void Aiming();
+	void ClickedFire();
+	void ReleasedFire();
+
 	void OnFireRight();
 
 	void InitInventoryWidget();
 	void OpenInventory();
 
 	void AcquireItem();
-		
+			
 public:
 	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator,
 		AActor* DamageCauser) override;
@@ -133,3 +150,8 @@ public:
 	static UDataTable* mProjectileTable;
 
 };
+
+inline void APlayerCharacter::PullEnd()
+{
+	ActionLine->bEnabled = false;
+}

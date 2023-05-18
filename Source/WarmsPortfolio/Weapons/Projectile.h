@@ -10,7 +10,6 @@
 class USphereComponent;
 class UProjectileMovementComponent;
 class AProjectileExplosionEffect;
-struct FProjectileData;
 
 //발사체 정보
 USTRUCT(BlueprintType)
@@ -55,12 +54,13 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void PreInitializeComponents() override;
 
+
 public:
 	//현재 공격력. 플레이어의 효과에 따라 기본공격력에서 달라질 수 있음. (ex 공격력 2배)
 	UPROPERTY()
 	float mCurrAttackPower;
 
-	void SetProjectileInfo(const FProjectileData* ProjectileData, float InitialSpeed);
+	void SetProjectileInfo(const FProjectileData* ProjectileData);
 	virtual UShapeComponent* GetCollider() const override;
 protected:
 	//발사체 Collision
@@ -75,12 +75,28 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effect, meta = (AllowPrivateAccess))
 	TSubclassOf<AProjectileExplosionEffect> mExplosionFX;
 
-	//발사체 정보
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= Projectile, meta = (AllowPrivateAccess))
-	FProjectileInfo mProjectileInfo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile, meta = (AllowPrivateAccess))
+	TSubclassOf<AActor> mTrajectoryActor;
 
-	
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile, meta = (AllowPrivateAccess))
+	TSubclassOf<AActor> mFireRangeActor;
+	//발사체 정보
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= Projectile, meta = (AllowPrivateAccess))
+	//FProjectileInfo mProjectileInfo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile, meta = (AllowPrivateAccess))
+	FProjectileData mProjectileInfo;
+
+	UPROPERTY(VisibleDefaultsOnly)
+	USceneComponent* mGunPos;
+
+	FName FireSocket = TEXT("FireSocket");
+
+	float FireRate = 1.0f;
+
+	//1초동안 증가하는 FireRate의 값
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float FireCoefficient = 1.0f;
 
 	virtual void Explode(const FHitResult& Impact);
 
@@ -88,8 +104,15 @@ protected:
 		
 	virtual void ApplyDamage(const FHitResult& Impact);
 
+	float GetInitialSpeed();
 public:
 	virtual void SetObjectType() override;
+	virtual void Fire() override;
+
+	virtual void SetWeaponData(const FWeaponData* WeaponData) override;
+	virtual void DrawTrajectory() override;
+	virtual void Clicking(float DeltaTime) override;
+	virtual void PostActorCreated() override;
 };
 
 

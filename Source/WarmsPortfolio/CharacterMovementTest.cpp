@@ -17,7 +17,6 @@ ACharacterMovementTest::ACharacterMovementTest()
 void ACharacterMovementTest::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame

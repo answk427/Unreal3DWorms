@@ -16,6 +16,11 @@ struct FWeaponData : public FTableRowBase
 	GENERATED_BODY()
 
 	FWeaponData() : AttackPower(10.0f){}
+	
+	virtual void Print()
+	{
+		UE_LOG(LogTemp, Warning, TEXT("FWeaponData"));
+	}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	FName WeaponName;
@@ -33,10 +38,14 @@ struct FProjectileData : public FWeaponData
 	GENERATED_BODY()
 
 	FProjectileData() :
-		Radius(5.0f), MaxSpeed(3000.0f), Weight(10.0f),
+		Radius(5.0f), MaxSpeed(3000.0f), InitialSpeed(1000.f), Weight(10.0f),
 		ExplodeRange(100.0f)
 	{}
 
+	virtual void Print()
+	{
+		UE_LOG(LogTemp, Warning, TEXT("FProjectileData"));
+	}
 	//Name
 
 	//원형 콜리더 Radius
@@ -46,6 +55,10 @@ struct FProjectileData : public FWeaponData
 	//투사체 최대 속도
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 	float MaxSpeed;
+
+	//투사체 초기 속도
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	float InitialSpeed;
 
 	//투사체 무게
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)

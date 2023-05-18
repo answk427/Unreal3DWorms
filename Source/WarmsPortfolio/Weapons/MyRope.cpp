@@ -4,6 +4,7 @@
 #include "MyRope.h"
 #include "../Character/PlayerCharacter.h"
 #include "CableComponent.h"
+#include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -21,7 +22,7 @@ AMyRope::AMyRope()
 	
 	/*ConstructorHelpers::FObjectFinder<UStaticMesh> mesh(TEXT("StaticMesh'/Game/M5VFXVOL2/Props/Meshes/BF_mesh_brazier.BF_mesh_brazier'"));
 
-	mStaticMesh->SetStaticMesh(mesh.Object);*/
+	mMeshComponent->SetStaticMesh(mesh.Object);*/
 }
 
 void AMyRope::Init(APlayerCharacter* OwnerPlayer)
@@ -55,8 +56,9 @@ void AMyRope::AddForceCharacter(float XInput, float YInput)
 	MovementComponent->AddInputVector(ForceVec.GetSafeNormal()*MovementPower);
 	//Character->SetActorLocation(Character->GetActorLocation() + ForceVec.GetSafeNormal()*MovementPower);
 
-	/*FRotator Rot = UKismetMathLibrary::FindLookAtRotation(Character->GetActorLocation(), GetActorLocation());
-	Character->SetActorRotation(Rot);*/
+	//캐릭터가 로프를 바라보도록 함
+	//FRotator Rot = UKismetMathLibrary::FindLookAtRotation(Character->GetActorLocation(), GetActorLocation());
+	//Character->SetActorRotation(Rot);
 }
 
 void AMyRope::GetTangentVector(FVector& RightTangentVec, FVector& UpTangentVec)
@@ -141,22 +143,27 @@ void AMyRope::Fire(const FVector& Start, const FVector& CameraPos, const FRotato
 
 	FCollisionObjectQueryParams ObjectQueryParams(ECollisionChannel::ECC_WorldStatic);
 
+	UKismetSystemLibrary::DrawDebugLine(GetWorld(), Start, End,
+		FLinearColor::Green, 2.0f, 3.0f);
+
 	if (GetWorld()->LineTraceSingleByObjectType(OutHit, Start, End, ObjectQueryParams))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("LineTrace Success Hit Object : %s"), *OutHit.GetActor()->GetName());
-		UKismetSystemLibrary::DrawDebugLine(GetWorld(), Start, End,
-			FLinearColor::Green, 2.0f, 3.0f);
+		
 		UKismetSystemLibrary::DrawDebugSphere(GetWorld(), OutHit.Location, 100, 12, FLinearColor::Red, 2.0f, 1.0f);
 		UKismetSystemLibrary::DrawDebugSphere(GetWorld(), OutHit.ImpactPoint, 80, 12, FLinearColor::Green, 2.0f, 1.0f);
 		UKismetSystemLibrary::DrawDebugSphere(GetWorld(), OutHit.TraceEnd, 60, 12, FLinearColor::Blue, 2.0f, 1.0f);
 		AllClear();
-		mCable->SetVisibility(true);
+		
 		SetActorLocation(OutHit.ImpactPoint);
 		mCableStarts.Add(OutHit.ImpactPoint);
 		mCableNormals.Add(OutHit.ImpactNormal);
-		bActivated = true;
-		OwnerCharacter->Hanging = true;
-		OwnerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+
+		//mCable->SetVisibility(true);
+		//bActivated = true;
+		//OwnerCharacter->Hanging = true;
+		//OwnerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+		Activate();
 	}
 	else
 	{
@@ -173,7 +180,7 @@ void AMyRope::TraceBetweenAdd()
 
 
 	//시작지점, 캐릭터 손
-	FVector Start = OwnerCharacter->mGunPos->GetComponentLocation();
+	FVector Start = OwnerCharacter->mWeaponPos->GetComponentLocation();
 
 	//종료지점, 최근 케이블의 시작위치
 	FVector End = LatestCable->GetComponentLocation();
@@ -377,7 +384,7 @@ void AMyRope::Tick(float DeltaSeconds)
 	if (!bActivated)
 		return;
 	TraceBetweenAdd();
-	//TraceBetweenRemove();
+	TraceBetweenRemove();
 }
 
 void AMyRope::BeginPlay()
@@ -430,7 +437,13 @@ void AMyRope::Activate()
 {
 	mCable->SetVisibility(true);
 	bActivated = true;
-	
+
+	OwnerCharacter->Hanging = true;
+	OwnerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
+	//캐릭터가 로프 방향을 바라볼 수 있도록 설정
+	OwnerCharacter->bUseControllerRotationYaw = false;
+	OwnerCharacter->mCamera->bUsePawnControlRotation = false;
+	UE_LOG(LogTemp, Warning, TEXT("=============AMyRope Activate==========="));
 }
 
 void AMyRope::Deactivate()
@@ -439,5 +452,15 @@ void AMyRope::Deactivate()
 	AllClear();
 	mCable->SetVisibility(false);
 	OwnerCharacter->Hanging = false;
+
+	FRotator rot = OwnerCharacter->GetActorRotation();
+	rot.Pitch = 0.f;
+	OwnerCharacter->SetActorRotation(rot);
+
 	OwnerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	OwnerCharacter->bUseControllerRotationYaw = true;
+	OwnerCharacter->mCamera->bUsePawnControlRotation = true;
+	 
+
+	UE_LOG(LogTemp, Warning, TEXT("=============AMyRope DeActivate==========="));
 }

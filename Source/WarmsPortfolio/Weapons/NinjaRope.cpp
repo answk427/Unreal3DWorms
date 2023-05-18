@@ -34,7 +34,7 @@ ANinjaRope::ANinjaRope()
 	mCableEnd->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	//로프에서 mesh는 사용안함.
-	mStaticMesh->SetVisibility(false);
+	mMeshComponent->SetVisibility(false);
 	mCableEndCollision->OnComponentBeginOverlap.AddDynamic(this, &ANinjaRope::OnComponentBeginOverlap);
 }
 

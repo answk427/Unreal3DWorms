@@ -45,6 +45,7 @@ public:
 public:
 	void InitDataTables();
 	UDataTable* GetTable(const FName& TableName);
+	UDataTable* GetTable(EObjectTypeName ItemType);
 
 	FWeaponData* GetWeaponData(EObjectTypeName ItemType, const FName& ItemName, const FString& ContextString);
 	TArray<FWPItem> GetAllItem(EObjectTypeName ItemType);

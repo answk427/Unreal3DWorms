@@ -54,8 +54,13 @@ UDataTable* UWPDataManager::GetTable(const FName& TableName)
 		return *ppDataTable;
 }
 
+UDataTable* UWPDataManager::GetTable(EObjectTypeName ItemType)
+{
+	return GetTable(GetDataTableName(ItemType));
+}
+
 FWeaponData* UWPDataManager::GetWeaponData(EObjectTypeName ItemType, const FName& ItemName,
-	const FString& ContextString)
+                                           const FString& ContextString)
 {
 	const FName& TableName = GetDataTableName(ItemType);
 	
@@ -66,6 +71,9 @@ FWeaponData* UWPDataManager::GetWeaponData(EObjectTypeName ItemType, const FName
 
 	FWeaponData* dataInfo = DataTable->FindRow<FWeaponData>(ItemName, ContextString);
 	
+	FProjectileData* dataInfo2 = DataTable->FindRow<FProjectileData>(ItemName, ContextString);
+
+	dataInfo2->Print();
 
 	return dataInfo;
 }

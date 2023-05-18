@@ -28,6 +28,8 @@
 #include "../Weapons/ItemActor.h"
 #include "../Weapons/MyRope.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Engine/PostProcessVolume.h"
+#include "Kismet/KismetMathLibrary.h"
 
 UDataTable* APlayerCharacter::mProjectileTable = nullptr;
 
@@ -98,8 +100,8 @@ APlayerCharacter::APlayerCharacter()
 	JumpMaxCount = 2;
 
 	FName WeaponSocket(TEXT("RightHandSocket"));
-	mGunPos = CreateDefaultSubobject<USceneComponent>(TEXT("GunPos"));
-	mGunPos->SetupAttachment(GetMesh(), WeaponSocket);
+	mWeaponPos = CreateDefaultSubobject<USceneComponent>(TEXT("GunPos"));
+	mWeaponPos->SetupAttachment(GetMesh(), WeaponSocket);
 
 
 }
@@ -119,8 +121,38 @@ void APlayerCharacter::BeginPlay()
 	}
 
 	mRope = GetWorld()->SpawnActor<AMyRope>();
-	//mRope->AttachToComponent(mGunPos, FAttachmentTransformRules::KeepRelativeTransform);
+	//mRope->AttachToComponent(mWeaponPos, FAttachmentTransformRules::KeepRelativeTransform);
 	mRope->Init(this);
+
+	TArray<AActor*> Result;
+
+	UGameplayStatics::GetAllActorsOfClassWithTag(GetWorld(), APostProcessVolume::StaticClass(),
+		FName(TEXT("ActionLine")), Result);
+
+
+	UE_LOG(LogTemp, Warning, TEXT("Result Num : %d"), Result.Num());
+	if (Result.Num() != 0)
+	{
+		for (auto elem : Result)
+		{
+			APostProcessVolume* PostProcessVolume = Cast<APostProcessVolume>(elem);
+			if (elem != nullptr)
+			{
+				ActionLine = PostProcessVolume;
+				ActionLine->bEnabled = false;
+				UE_LOG(LogTemp, Warning, TEXT("ProcessVolume Search Success"));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ProcessVolume Cast Failed"));
+			}
+		}
+
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ProcessVolume Search Fail"));
+	}
 
 }
 
@@ -128,7 +160,9 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	//UE_LOG(LogTemp, Warning, TEXT("bFireHoldDown : %s"), bFireHoldDown? TEXT("true") : TEXT("false"));
+	if(bFireHoldDown)
+		Aiming();
 
 	//GetCharacterMovement()->AddInputVector(FVector(1.0f, 0.f, 0.f));
 
@@ -146,9 +180,14 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &APlayerCharacter::OnFire);
-	PlayerInputComponent->BindAction(TEXT("RightClick"), EInputEvent::IE_Pressed, this, &APlayerCharacter::OnFireRight);
+	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ClickedFire);
+	//PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Repeat, this, &APlayerCharacter::Aiming);
+	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Released, this, &APlayerCharacter::ReleasedFire);
 
+	PlayerInputComponent->BindAction(TEXT("RightClick"), EInputEvent::IE_Pressed, this, &APlayerCharacter::OnFireRight);
+	PlayerInputComponent->BindAction(TEXT("RightClick"), EInputEvent::IE_Repeat, this, &APlayerCharacter::Aiming);
+	
+	
 	PlayerInputComponent->BindAxis(TEXT("UpDown"), this, &APlayerCharacter::UpDown);
 	PlayerInputComponent->BindAxis(TEXT("LeftRight"), this, &APlayerCharacter::LeftRight);
 
@@ -160,10 +199,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &APlayerCharacter::StopJumping);
+	PlayerInputComponent->BindAction(TEXT("ActionPull"), EInputEvent::IE_Released, this, &APlayerCharacter::PullEnd);
 
 	PlayerInputComponent->BindAxis(TEXT("Pull"), this, &APlayerCharacter::Pull);
 	PlayerInputComponent->BindAxis(TEXT("Push"), this, &APlayerCharacter::Push);
 
+	
 }
 
 void APlayerCharacter::UpDown(float Value)
@@ -186,7 +227,7 @@ void APlayerCharacter::LeftRight(float Value)
 {
 	if (Value == 0)
 		return;
-		
+
 	if (Hanging)
 	{
 		mRope->AddForceCharacter(Value, 0.f);
@@ -203,7 +244,31 @@ void APlayerCharacter::LeftRight(float Value)
 
 void APlayerCharacter::Yaw(float Value)
 {
-	AddControllerYawInput(Value);
+	/*if(!Hanging)
+	{
+		AddControllerYawInput(Value);
+	}*/
+
+	if (Hanging)
+	{
+		//캐릭터가 로프를 바라보도록 함
+		FVector X = mRope->mCableStarts.Last() - GetActorLocation();
+		FVector Z = FVector::CrossProduct(X, GetActorRightVector());
+		FVector Y = FVector::CrossProduct(Z, X);
+
+		FRotator Rot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), mRope->GetActorLocation());
+		//FRotator MyRot = UKismetMathLibrary::MakeRotationFromAxes(X, Y, Z);
+
+		/*UE_LOG(LogTemp, Warning, TEXT("FindLookAtRotation Rot : %s"), *Rot.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("My Cross Rot : %s"), *MyRot.ToString());*/
+		SetActorRotation(Rot);
+		//mCamera->SetRelativeRotation(FRotator::ZeroRotator);
+	}
+	else
+	{
+		AddControllerYawInput(Value);
+	}
+
 }
 
 void APlayerCharacter::Pull(float Value)
@@ -211,7 +276,11 @@ void APlayerCharacter::Pull(float Value)
 	if (Value == 0)
 		return;
 
-	mRope->PullRope();
+	if (Hanging)
+	{
+		ActionLine->bEnabled = true;
+		mRope->PullRope();
+	}
 
 }
 
@@ -224,8 +293,19 @@ void APlayerCharacter::Push(float Value)
 
 }
 
-void APlayerCharacter::OnFire()
+void APlayerCharacter::Aiming()
 {
+	if(mCurrentWeapon == nullptr)
+		return;
+	
+	mCurrentWeapon->SetActorLocation(mWeaponPos->GetComponentLocation(), true);
+	mCurrentWeapon->Clicking(GetWorld()->GetDeltaSeconds());
+	mCurrentWeapon->DrawTrajectory();
+}
+
+void APlayerCharacter::ClickedFire()
+{
+	UE_LOG(LogTemp, Warning, TEXT("ClickedFire"));
 	check(mProjectileTable);
 
 	if (Hanging)
@@ -235,19 +315,26 @@ void APlayerCharacter::OnFire()
 		FVector CameraPosition = mCamera->GetComponentLocation();
 		FRotator CameraRotator = mCamera->GetComponentRotation();
 
-		mRope->Fire(mGunPos->GetComponentLocation(), CameraPosition, CameraRotator);
+		mRope->Fire(mWeaponPos->GetComponentLocation(), CameraPosition, CameraRotator);
 
 		return;
 	}
 
 	//현재 착용중인 무기를 가져옴.
-	const std::pair<FWPItem, FWeaponData>* WeaponData = mEquipments->GetWeapon();
+	const auto WeaponData = mEquipments->GetWeapon();
+
 	//착용중인 무기가 없을 시 리턴
 	if (WeaponData == nullptr)
 		return;
 
-	const FProjectileData* currProjectileData = mProjectileTable->FindRow<FProjectileData>(WeaponData->first.ItemName, TEXT("OnFireProjectileTable"));
-	TSubclassOf<AProjectile> WeaponUClass = currProjectileData->WeaponClass;
+	if (mCurrentWeapon != nullptr)
+	{
+		mCurrentWeapon->Destroy();
+		mCurrentWeapon = nullptr;
+	}
+		
+
+	TSubclassOf<AWeapon> WeaponUClass = WeaponData->second->WeaponClass;
 
 	if (WeaponUClass != nullptr)
 	{
@@ -255,28 +342,36 @@ void APlayerCharacter::OnFire()
 		if (World != nullptr)
 		{
 			const FRotator SpawnRotation = GetControlRotation();
-			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 			//임시 하드코딩 offset 벡터
 			FVector GunOffset(100.0f, 0.0f, 10.0f);
 			FVector playerPos = GetActorLocation();
 
-			const FVector SpawnLocation = ((mGunPos != nullptr) ? mGunPos->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
-
+			const FVector SpawnLocation = ((mWeaponPos != nullptr) ? mWeaponPos->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
+			
 
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 			UE_LOG(LogTemp, Error, TEXT("Spawn AProjectile"));
-			// spawn the projectile at the muzzle
-			//World->SpawnActor<AProjectile>(mProjectile, SpawnLocation, SpawnRotation, ActorSpawnParams);
-
+			
 			//ProjectileMovement 컴포넌트가 초기화 되기 전에 해당 발사체의 정보를 설정하고 스폰
 			const FTransform SpawnTr(SpawnRotation, SpawnLocation);
-			AProjectile* SpawnedProjectile = World->SpawnActorDeferred<AProjectile>(WeaponUClass, SpawnTr, this, this);
-			SpawnedProjectile->SetProjectileInfo(currProjectileData, 1600.0f);
-			UGameplayStatics::FinishSpawningActor(SpawnedProjectile, SpawnTr);
+			
+			//AWeapon* SpawnedWeapon = World->SpawnActorDeferred<AWeapon>(WeaponUClass, SpawnTr, this, this);
+			mCurrentWeapon = World->SpawnActorDeferred<AWeapon>(WeaponUClass, SpawnTr, this, this);
+
+			//SpawnedWeapon->SetWeaponData(WeaponData->second.get());
+			mCurrentWeapon->SetWeaponData(WeaponData->second.get());
+			mCurrentWeapon->SetActorEnableCollision(false);
+			
+
+			//mCurrentWeapon->SetActorHiddenInGame(true);
+			//SpawnedWeapon->AttachToComponent(mWeaponPos, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			
+			//SpawnedWeapon->Fire();
 		}
 	}
+
 
 	// try and play the sound if specified
 	//if (FireSound != nullptr)
@@ -294,10 +389,23 @@ void APlayerCharacter::OnFire()
 	//		AnimInstance->Montage_Play(FireAnimation, 1.f);
 	//	}
 	//}
+
+	bFireHoldDown = true;
+}
+
+void APlayerCharacter::ReleasedFire()
+{
+	UE_LOG(LogTemp, Warning, TEXT("ReleasedFire"));
+	bFireHoldDown = false;
+
+	if (mCurrentWeapon == nullptr)
+		return;
+
+	mCurrentWeapon->Fire();
 }
 
 float APlayerCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator,
-	AActor* DamageCauser)
+                                   AActor* DamageCauser)
 {
 
 	UE_LOG(LogTemp, Warning, TEXT("TakeDamage Function Called"));
@@ -320,7 +428,8 @@ void APlayerCharacter::OnFireRight()
 	FVector CameraPosition = mCamera->GetComponentLocation();
 	FRotator CameraRotator = mCamera->GetComponentRotation();
 
-	mRope->Fire(mGunPos->GetComponentLocation(), CameraPosition, CameraRotator);
+	//mRope->Fire(mWeaponPos->GetComponentLocation(), CameraPosition, CameraRotator);
+	mRope->Fire(mCamera->GetComponentLocation(), CameraPosition, CameraRotator);
 
 }
 
@@ -339,7 +448,7 @@ void APlayerCharacter::InitInventoryWidget()
 		InventoryInstance->BindInventory(mInventory, mEquipments);
 		//InventoryInstance->ItemInventory->OnItemClicked().Add()
 	}
-	 
+
 
 }
 
@@ -361,6 +470,7 @@ void APlayerCharacter::OpenInventory()
 		UInventoryWeaponWidget* Inventory = Cast<UInventoryWeaponWidget>(mInventoryWidget);
 		check(Inventory != nullptr);
 		mInventory->AddWeaponItem(FWPItem(FName(TEXT("GrenadeTest")), EObjectTypeName::Projectile));
+		mInventory->AddWeaponItem(FWPItem(FName(TEXT("MissileTest")), EObjectTypeName::Projectile));
 
 		auto Visibility = mInventoryWidget->GetVisibility();
 

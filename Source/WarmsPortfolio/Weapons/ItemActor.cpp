@@ -86,9 +86,11 @@ void AItemActor::SetItemInfo(const FWPItem& Item)
 
 void AItemActor::Init(const AWeapon* WeaponSrc, const FWPItem& ItemSrc)
 {
-	mItemMesh->SetStaticMesh(WeaponSrc->mStaticMesh->GetStaticMesh());
+	mItemMesh->SetStaticMesh(WeaponSrc->mMeshComponent->GetStaticMesh());
+	USkeletalMeshComponent* a;
+	a->SkeletalMesh
 	
-	UStaticMeshComponent* StaticMeshComponentSrc = WeaponSrc->mStaticMesh;
+	UStaticMeshComponent* StaticMeshComponentSrc = WeaponSrc->mMeshComponent;
 	
 	UStaticMesh* DuplicateMesh = DuplicateObject<UStaticMesh>(StaticMeshComponentSrc->GetStaticMesh(), StaticMeshComponentSrc);
 	mItemMesh->SetStaticMesh(DuplicateMesh);

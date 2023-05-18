@@ -14,16 +14,33 @@ void FPlayerEquipments::EquipWeapon(const FWPItem& item, const FWeaponData& Weap
 {
 	UE_LOG(LogTemp, Warning, TEXT("EquipWeapon"));
 
-	//아무것도 장착하고 있지 않을때
-	if (CurrentWeapon == nullptr)
-		CurrentWeapon = std::make_unique<std::pair<FWPItem, FWeaponData>>(FWPItem(), FWeaponData());
 
 	//이미 같은 아이템을 장착중이면 리턴
-	if (CurrentWeapon->first.ItemName == item.ItemName)
+	if (CurrentWeapon != nullptr && CurrentWeapon->first.ItemName == item.ItemName)
 		return;
+
 	
+	CurrentWeapon.release();
+
+	std::unique_ptr<FWeaponData> pData;
+	switch(item.GameObjectType)
+	{
+	case EObjectTypeName::Projectile:
+		{
+		pData = std::make_unique<FProjectileData>((FProjectileData&)WeaponData);
+		break;
+		}
+	default:
+		pData = std::make_unique<FWeaponData>(WeaponData);
+	}
+
+	CurrentWeapon = std::make_unique<WeaponItemPair>
+		(std::make_pair<FWPItem, std::unique_ptr<FWeaponData>>
+		(FWPItem(), std::move(pData)));
+
+
 	CurrentWeapon->first = item;
-	CurrentWeapon->second = WeaponData;
+	//*CurrentWeapon->second = WeaponData;
 }
 
 

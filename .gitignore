@@ -73,3 +73,5 @@ Plugins/*/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 *.uasset
+MyContents/
+japanese_stone_wall_diff_4k.jpg

@@ -23,8 +23,10 @@ struct WARMSPORTFOLIO_API FPlayerEquipments
 {
 	GENERATED_BODY()
 
+	using WeaponItemPair = std::pair<FWPItem, std::unique_ptr<FWeaponData>>;
 private:
-	std::unique_ptr<std::pair<FWPItem, FWeaponData>> CurrentWeapon = nullptr;
+	//FWeaponData를 포잉ㄴ터로 바꿔야함. std::pair<FWPItem, std::unique_ptr<FWeaponData>>로?
+	std::unique_ptr<WeaponItemPair> CurrentWeapon = nullptr;
 	
 public:
 	FPlayerEquipments();
@@ -38,7 +40,7 @@ public:
 	//무기 착용 함수
 	void EquipWeapon(const FWPItem& item, const FWeaponData& WeaponData);
 
-	const std::pair<FWPItem, FWeaponData>* GetWeapon() const
+	const WeaponItemPair* GetWeapon() const
 	{
 		return CurrentWeapon.get();
 	}
