@@ -42,15 +42,15 @@ void UInventoryWeaponWidget::AddListItem(const FWPItem& Item)
 		auto ItemName = Item.ItemName;
 		UMaterialInstanceDynamic* ItemMaterial;
 
-		//ÇØ´ç ¾ÆÀÌÅÛÀ» Ä¸ÃÄÇÑ ÅØ½ºÃÄ ¸ÞÅ×¸®¾óÀÌ ÀÖ´ÂÁö È®ÀÎ
+		//ï¿½Ø´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä¸ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
 		auto pItemMaterial = WeaponListItems.Find(ItemName);
 		if (pItemMaterial == nullptr)
 		{
-			//ÅØ½ºÃÄ°¡ ¾øÀ¸¸é »ý¼ºÇÏ°í ·»´õ¸µ
+			//ï¿½Ø½ï¿½ï¿½Ä°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			UTextureRenderTarget2D* ItemTexture = NewObject<UTextureRenderTarget2D>(this);
 			ItemRenderToTexture(Item, ItemTexture);
 
-			//·»´õ¸µÇÑ ÅØ½ºÃÄ¸¦ »ç¿ëÇÏ´Â ¸ÞÅ×¸®¾ó »ý¼º
+			//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½ï¿½Ä¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 			UMaterialInstanceDynamic* MaterialInstance = UMaterialInstanceDynamic::Create(UCaptureHelper::Instance()->ItemEntryMat, this);
 			MaterialInstance->SetTextureParameterValue(TEXT("ItemTexture"), ItemTexture);
 			ItemMaterial = MaterialInstance;
@@ -79,7 +79,7 @@ void UInventoryWeaponWidget::BindInventory(TWeakPtr<FInventory> Inventory, TWeak
 		Inven->AddWeaponDelegate.AddUObject(this, &UInventoryWeaponWidget::AddListItem);
 		//Inven->RemoveWeaponDelegate.AddUObject(this, &UInventoryWeaponWidget::RemoveItem);
 
-		//ÀÎº¥Åä¸®¿¡ ÀÖ´Â ¸ðµç ¾ÆÀÌÅÛÀ» TileView¿¡ Ãß°¡
+		//ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ TileViewï¿½ï¿½ ï¿½ß°ï¿½
 		ListInit();
 	}
 
@@ -132,21 +132,21 @@ void UInventoryWeaponWidget::ItemRenderToTexture(const FWPItem& Item, UTextureRe
 {
 	if (DataManager == nullptr)
 	{
-		//µ¥ÀÌÅÍÅ×ÀÌºí¿¡¼­ Å×ÀÌºíÀ» °¡Á®¿È.
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
 		static UWPGameInstance* GameInstance = Cast<UWPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 		check(GameInstance);
 		DataManager = GameInstance->DataManager;
 	}
 
 	check(DataManager);
-	//¿¡·¯ ¹ß»ý½Ã ¾Ë¼öÀÖ´Â Å×ÀÌºí ÀÌ¸§
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ï¿½ï¿½ ï¿½Ë¼ï¿½ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ì¸ï¿½
 	FString ContextString(TEXT("CreatedWeaponWidget_"));
 	ContextString += Item.ItemName.ToString();
 
 	FWeaponData* dataInfo = DataManager->GetWeaponData(Item.GameObjectType, Item.ItemName, ContextString);
 	check(dataInfo);
 
-	//ÅØ½ºÃÄ¿¡ ¹«±â¸¦ ·»´õ¸µÇÔ
+	//ï¿½Ø½ï¿½ï¿½Ä¿ï¿½ ï¿½ï¿½ï¿½â¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	if (RenderTarget == nullptr)
 		RenderTarget = NewObject<UTextureRenderTarget2D>(this);
 
@@ -162,14 +162,14 @@ void UInventoryWeaponWidget::ItemClicked(UObject* Object)
 	UInventoryWeaponEntry* Entry = Cast<UInventoryWeaponEntry>(EntryWidget);
 	check(Entry);
 
-	//¼±ÅÃµÈ ¾ÆÀÌÅÛÀÌ Á¸ÀçÇÏ¸é ±× ¾ÆÀÌÅÛ ¼±ÅÃÀ» ÇØÁ¦
+	//ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if(SelectedEntry.IsValid())
 	{
 		SelectedEntry->UnSelected();
 	}
 
 	Entry->Selected();
-	//¼±ÅÃµÈ ¾ÆÀÌÅÛ º¯°æ
+	//ï¿½ï¿½ï¿½Ãµï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	SelectedEntry = Entry;
 }
 
@@ -201,7 +201,7 @@ void UInventoryWeaponWidget::VisibleChanged(ESlateVisibility CurrVisibility)
 
 		switch (CurrVisibility)
 		{
-			//ÀÎº¥Åä¸®°¡ º¸ÀÌÁö ¾ÊÀ¸¸é ¸¶¿ì½º¸¦ °¨Ãã
+			//ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ì½ºï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		case ESlateVisibility::Collapsed:
 			UE_LOG(LogTemp, Warning, TEXT("VisibleChanged ESlateVisibility::Collapsed"));
 			PlayerController->bShowMouseCursor = false;
@@ -226,21 +226,21 @@ void UInventoryWeaponWidget::ListInit()
 	{
 		auto& WeaponItems = PlayerInventory.Pin()->Weapons;
 
-		//Inventory¿¡ ÀÖ´Â ¸ðµç ¾ÆÀÌÅÛ¿¡ ´ëÇØ ListItem »ý¼º
+		//Inventoryï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Û¿ï¿½ ï¿½ï¿½ï¿½ï¿½ ListItem ï¿½ï¿½ï¿½ï¿½
 		for (auto& Weapon : WeaponItems)
 		{
 			auto ItemName = Weapon.ItemName;
 			UMaterialInstanceDynamic* ItemMaterial;
 
-			//ÇØ´ç ¾ÆÀÌÅÛÀ» Ä¸ÃÄÇÑ ÅØ½ºÃÄ ¸ÞÅ×¸®¾óÀÌ ÀÖ´ÂÁö È®ÀÎ
+			//ï¿½Ø´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä¸ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½×¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ È®ï¿½ï¿½
 			auto pItemMaterial = WeaponListItems.Find(ItemName);
 			if (pItemMaterial == nullptr)
 			{
-				//ÅØ½ºÃÄ°¡ ¾øÀ¸¸é »ý¼ºÇÏ°í ·»´õ¸µ
+				//ï¿½Ø½ï¿½ï¿½Ä°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				UTextureRenderTarget2D* ItemTexture = NewObject<UTextureRenderTarget2D>(this);
 				ItemRenderToTexture(Weapon, ItemTexture);
 
-				//·»´õ¸µÇÑ ÅØ½ºÃÄ¸¦ »ç¿ëÇÏ´Â ¸ÞÅ×¸®¾ó »ý¼º
+				//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½ï¿½Ä¸ï¿½ ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½×¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 				UMaterialInstanceDynamic* MaterialInstance = UMaterialInstanceDynamic::Create(UCaptureHelper::Instance()->ItemEntryMat, this);
 				MaterialInstance->SetTextureParameterValue(TEXT("ItemTexture"), ItemTexture);
 				ItemMaterial = MaterialInstance;

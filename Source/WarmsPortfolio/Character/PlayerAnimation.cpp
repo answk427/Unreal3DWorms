@@ -16,7 +16,7 @@ void UPlayerAnimation::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
 
-	//ÇöÀç ¾Ö´Ï¸ÞÀÌ¼Ç Å¬·¡½º¸¦ °¡Áø Pawn
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´Ï¸ï¿½ï¿½Ì¼ï¿½ Å¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Pawn
 	auto Pawn = TryGetPawnOwner();
 	
 	if (IsValid(Pawn))

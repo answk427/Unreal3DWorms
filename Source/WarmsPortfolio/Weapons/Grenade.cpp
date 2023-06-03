@@ -11,6 +11,7 @@
 
 AGrenade::AGrenade()
 {
+	PrimaryActorTick.bCanEverTick = true;
 	mCollisionComp->BodyInstance.bNotifyRigidBodyCollision = false;
 
 	mCountDownWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("CountDownText"));
@@ -40,7 +41,7 @@ void AGrenade::Tick(float DeltaSeconds)
 
 	if(mProjectileMovement->Velocity.IsNearlyZero() && !bStopped)
 	{
-		//if¹® ¾ÈÂÊÀ¸·Î ÇÑ¹ø¸¸ µé¾î¿Àµµ·Ï ÇÃ·¡±× ¼³Á¤
+		//ifï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ñ¹ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		bStopped = true;
 
 		FHitResult CurrPos;
@@ -52,11 +53,11 @@ void AGrenade::Tick(float DeltaSeconds)
 			CountWidget->CountStart(mExplodeDelay);
 		else
 			UE_LOG(LogTemp, Warning, TEXT("Grenade Tick widget null"));
-		//Æø¹ßÀÌÆåÆ® ½ºÆù
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
 		Explode(CurrPos);
 	}
 
-	FVector pos = mCountDownWidget->GetComponentLocation();
+	//FVector pos = mCountDownWidget->GetComponentLocation();
 	//UE_LOG(LogTemp, Warning, TEXT("Grenade UI X:%f Y:%f Z:%f"), pos.X, pos.Y, pos.Z);
 }
 
@@ -77,7 +78,13 @@ void AGrenade::BeginPlay()
 		countWidget->CountText->SetText(FText::FromString(""));
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Grenade BeginPlay widget null"));
-			
+
+	////Set mCountDownWidget Location
+	////Set Z Location Value to (Actor's Size * 0.7 + WidgetSize.Y)
+	//FVector Origin, Extent;
+	//GetActorBounds(false, Origin, Extent);
+	//FVector2D WidgetSize = mCountDownWidget->GetDrawSize();
+	//mCountDownWidget->SetRelativeLocation(FVector(0.f, 0.f, Extent.Z * 0.7f + WidgetSize.Y));
 }
 
 void AGrenade::Explode(const FHitResult& CurrPos)
@@ -86,10 +93,12 @@ void AGrenade::Explode(const FHitResult& CurrPos)
 	GetWorld()->GetTimerManager().SetTimer(timerHandle, FTimerDelegate::CreateLambda(
 		[&, CurrPos]()
 	{
+		//Spawn Effect
 		Super::Explode(CurrPos);
-
+				
 		FTimerHandle timerHandleDestroy;
-		//Æø¹ß ÀÌÆåÆ® 1ÃÊ µÚ ¹ß»çÃ¼ ¾×ÅÍ ÆÄ±«
+
+		//Destroy 1sec later
 		GetWorld()->GetTimerManager().SetTimer(timerHandleDestroy,
 			FTimerDelegate::CreateLambda(
 				[&]() {Destroy(); }),

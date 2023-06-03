@@ -22,7 +22,7 @@ AProjectileExplosionEffect::AProjectileExplosionEffect()
 		
 	SetActorEnableCollision(false);
 
-	UE_LOG(LogTemp, Error, TEXT("Explosion Constructor"));
+	UE_LOG(LogTemp, Warning, TEXT("Explosion Constructor"));
 }
 
 // Called when the game starts or when spawned

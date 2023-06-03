@@ -28,10 +28,10 @@ AProjectile::AProjectile()
 	mCollisionComp->BodyInstance.SetCollisionProfileName("Projectile");
 	
 
-	//ÇÃ·¹ÀÌ¾î°¡ ¹ß»çÃ¼ À§¸¦ °ÉÀ» ¼ö ¾øÀ½
+	//ï¿½Ã·ï¿½ï¿½Ì¾î°¡ ï¿½ß»ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	mCollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
 	mCollisionComp->CanCharacterStepUpOn = ECB_No;
-	//hit event ¹ß»ý ¿©ºÎ
+	//hit event ï¿½ß»ï¿½ ï¿½ï¿½ï¿½ï¿½
 	mCollisionComp->BodyInstance.bNotifyRigidBodyCollision = true;
 	
 
@@ -42,16 +42,15 @@ AProjectile::AProjectile()
 	mProjectileMovement->bRotationFollowsVelocity = true;
 	mProjectileMovement->bShouldBounce = true;
 
-	mMeshComponent->SetupAttachment(RootComponent);
+	//mMeshComponent->SetupAttachment(RootComponent);
 
 	mCollisionComp->InitSphereRadius(mProjectileInfo.Radius);
 	mProjectileMovement->InitialSpeed = mProjectileInfo.InitialSpeed;
 	mProjectileMovement->MaxSpeed = mProjectileInfo.MaxSpeed;
 
 	mGunPos = CreateDefaultSubobject<USceneComponent>(TEXT("FirePosSceneComponent"));
-	mGunPos->SetupAttachment(mMeshComponent, FireSocket);
-
-	//¹ß»çÃ¼ ±ËÀû ±×¸®±â¿¡ »ç¿ëµÇ´Â ¾×ÅÍ
+	
+	//ï¿½ß»ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½â¿¡ ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½
 	static ConstructorHelpers::FClassFinder<AActor> Trajectory(TEXT("Blueprint'/Game/BluePrints/TrajectoryActor.TrajectoryActor_C'"));
 	if(Trajectory.Succeeded())
 	{
@@ -66,8 +65,8 @@ AProjectile::AProjectile()
 		mFireRangeActor = FireRange.Class;
 	}
 	
-	UE_LOG(LogTemp, Error, TEXT("Constructor InitInfo.InitialSpeed : %f"), mProjectileInfo.InitialSpeed);
-	UE_LOG(LogTemp, Error, TEXT("Constructor FireCoefficient : %f"), FireCoefficient);
+	UE_LOG(LogTemp, Warning, TEXT("Constructor InitInfo.InitialSpeed : %f"), mProjectileInfo.InitialSpeed);
+	UE_LOG(LogTemp, Warning, TEXT("Constructor FireCoefficient : %f"), FireCoefficient);
 	//InitialLifeSpan = 10.0f;
 	
 	
@@ -78,16 +77,17 @@ AProjectile::AProjectile()
 
 void AProjectile::PostInitializeComponents()
 {
-	UE_LOG(LogTemp, Error, TEXT("Pre PostInitialize FireCoefficient : %f"), FireCoefficient);
+	UE_LOG(LogTemp, Warning, TEXT("Pre PostInitialize FireCoefficient : %f"), FireCoefficient);
 	Super::PostInitializeComponents();
-	UE_LOG(LogTemp, Error, TEXT("Post PostInitialize FireCoefficient : %f"), FireCoefficient);
+	UE_LOG(LogTemp, Warning, TEXT("Post PostInitialize FireCoefficient : %f"), FireCoefficient);
 }
 
 void AProjectile::PreInitializeComponents()
 {
-	UE_LOG(LogTemp, Error, TEXT("Pre PreInitialize Firecoefficient : %f"), FireCoefficient);
+	UE_LOG(LogTemp, Warning, TEXT("Pre PreInitialize Firecoefficient : %f"), FireCoefficient);
+	
 	Super::PreInitializeComponents();
-	UE_LOG(LogTemp, Error, TEXT("Post PreInitialize FireCoefficient : %f"), FireCoefficient);
+	UE_LOG(LogTemp, Warning, TEXT("Post PreInitialize FireCoefficient : %f"), FireCoefficient);
 	mCollisionComp->InitSphereRadius(mProjectileInfo.Radius);
 	mProjectileMovement->InitialSpeed = GetInitialSpeed();
 	mProjectileMovement->MaxSpeed = mProjectileInfo.MaxSpeed;
@@ -117,7 +117,7 @@ UShapeComponent* AProjectile::GetCollider() const
 
 inline void AProjectile::Explode(const FHitResult& Impact)
 {
-	// Å¸°ÝÁöÁ¡ÀÇ ³ë¸»º¤ÅÍ ¹æÇâ¿¡¼­ Æø¹ß
+	// Å¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ë¸»ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	const FVector NudgedImpactLocation = Impact.ImpactPoint + Impact.ImpactNormal * 10.0f;
 
 	if (mExplosionFX)
@@ -133,10 +133,10 @@ inline void AProjectile::Explode(const FHitResult& Impact)
 		AProjectileExplosionEffect* const EffectActor = GetWorld()->SpawnActorDeferred<AProjectileExplosionEffect>(mExplosionFX, SpawnTransform);
 		//AProjectileExplosionEffect* const EffectActor = GetWorld()->SpawnActorDeferred<AProjectileExplosionEffect>(AProjectileExplosionEffect::StaticClass(), SpawnTransform);
 		//auto EffectActor = NewObject<AProjectileExplosionEffect>(GetWorld(), mExplosionFX);
-		UE_LOG(LogTemp, Error, TEXT("SpawnActorDeffered End"));
+		UE_LOG(LogTemp, Warning, TEXT("SpawnActorDeffered End"));
 		if (EffectActor)
 		{
-			UE_LOG(LogTemp, Error, TEXT("Pre FinishSpawningActor"));
+			UE_LOG(LogTemp, Warning, TEXT("Pre FinishSpawningActor"));
 			/*	UE_LOG(LogTemp, Warning, TEXT("SpawnTransform X:%f Y:%f Z:%f"), spawnPos.X,
 					spawnPos.Y,
 					spawnPos.Z);*/
@@ -144,7 +144,7 @@ inline void AProjectile::Explode(const FHitResult& Impact)
 
 					//EffectActor->SurfaceHit = Impact;
 			UGameplayStatics::FinishSpawningActor(EffectActor, SpawnTransform);
-			UE_LOG(LogTemp, Error, TEXT("FinishSpawningActor End"));
+			UE_LOG(LogTemp, Warning, TEXT("FinishSpawningActor End"));
 		}
 		ApplyDamage(Impact);
 	}
@@ -174,9 +174,9 @@ void AProjectile::SetObjectType()
 
 void AProjectile::Fire()
 {
-	//¾ÆÁ÷ ¾ÈÇÑ°Å
-	//ºí·çÇÁ¸°Æ®¿¡¼­ Socket »ý¼º ¾ÆÁ÷ ¾ÈÇÔ.
-	//ºí·çÇÁ¸°Æ®¿¡¼­ mGunPos¸¦ Socket¿¡ ºÙ¿©Áà¾ßµÊ.
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ñ°ï¿½
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ Socket ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ mGunPosï¿½ï¿½ Socketï¿½ï¿½ ï¿½Ù¿ï¿½ï¿½ï¿½ßµï¿½.
 	UE_LOG(LogTemp, Warning, TEXT("--------AProjectile Fire-----------"));
 	UE_LOG(LogTemp, Warning, TEXT("Projectile InitialSpeed : %f, FireRate : %f"), GetInitialSpeed(), FireRate);
 	UE_LOG(LogTemp, Warning, TEXT("Projectile FireCoefficient : %f"), FireCoefficient);
@@ -187,10 +187,11 @@ void AProjectile::Fire()
 	FRotator FireRot;
 	Controller->GetPlayerViewPoint(FirePos, FireRot);
 	FirePos = mGunPos->GetComponentLocation();
-
+	
+	
 	const FTransform SpawnTr(FireRot, FirePos);
-
-	////¹ß»ç À§Ä¡·Î ÁöÁ¤µÈ ¼ÒÄÏÀ§Ä¡¸¦ Ã£À½
+	DrawDebugSphere(GetWorld(), SpawnTr.GetLocation(), 30.f, 64, FColor::Black, false, 3.f);
+	////ï¿½ß»ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡ï¿½ï¿½ Ã£ï¿½ï¿½
 	//if (mMeshComponent->DoesSocketExist(FireSocket))
 	//{
 	//	
@@ -200,9 +201,22 @@ void AProjectile::Fire()
 	//{
 	//	FirePos = GetActorLocation();
 	//}
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	//DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
 	SetActorEnableCollision(true);
-	UGameplayStatics::FinishSpawningActor(this, SpawnTr);
 	
+	//FTransform const* const OriginalSpawnTransform = GetDeferredTransformCache(this);
+	//UE_LOG(LogTemp, Warning, TEXT("GetDefferedTransform %s"), *OriginalSpawnTransform->ToString());
+
+	GetRootComponent()->SetWorldTransform(SpawnTr);
+	//AActor* thisActor = UGameplayStatics::FinishSpawningActor(this, SpawnTr);
+	FinishSpawning(SpawnTr, true);
+
+
+
+	//SetActorTransform(SpawnTr);
+	//FinishSpawningTransform(SpawnTr);
+	UE_LOG(LogTemp, Warning, TEXT("AProjectile Fire End"));
 }
 
 void AProjectile::SetWeaponData(const FWeaponData* WeaponData)
@@ -210,7 +224,8 @@ void AProjectile::SetWeaponData(const FWeaponData* WeaponData)
 	Super::SetWeaponData(WeaponData);
 
 	const FProjectileData* ProjectileData = static_cast<const FProjectileData*>(WeaponData);
-		
+
+	
 	if(ProjectileData)
 	{
 		mProjectileInfo = *ProjectileData;
@@ -224,9 +239,9 @@ void AProjectile::SetWeaponData(const FWeaponData* WeaponData)
 
 void AProjectile::DrawTrajectory()
 {
-	//¾ÆÁ÷ ¾ÈÇÑ°Å
-	//ºí·çÇÁ¸°Æ®¿¡¼­ Socket »ý¼º ¾ÆÁ÷ ¾ÈÇÔ.
-	//ºí·çÇÁ¸°Æ®¿¡¼­ mGunPos¸¦ Socket¿¡ ºÙ¿©Áà¾ßµÊ.
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ñ°ï¿½
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ Socket ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ï¿½ï¿½ mGunPosï¿½ï¿½ Socketï¿½ï¿½ ï¿½Ù¿ï¿½ï¿½ï¿½ßµï¿½.
 	auto Controller = GetInstigatorController();
 	FVector FirePos;
 	FRotator FireRot;
@@ -235,6 +250,7 @@ void AProjectile::DrawTrajectory()
 
 	FPredictProjectilePathResult Result;
 	FPredictProjectilePathParams Params;
+	//UE_LOG(LogTemp, Warning, TEXT("DrawTrajectory FirePos : %s"), *FirePos.ToString());
 
 	
 
@@ -254,40 +270,78 @@ void AProjectile::DrawTrajectory()
 	//DrawDebugSphere(GetWorld(), ImpactPoint, 64.f, 32, FColor::Blue, false, 1.f);
 	//UE_LOG(LogTemp, Warning, TEXT("ImpactPoint %s"), *Result.HitResult.ImpactPoint.ToString());
 
-	//¸î°³ÀÇ ¾×ÅÍ·Î ±ËÀûÀ» ±×¸±°ÍÀÎÁö °³¼ö
+	//ï¿½î°³ï¿½ï¿½ ï¿½ï¿½ï¿½Í·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	static float TrajectoryNum = 15;
 	auto& posArr = Result.PathData;
 	float stride = posArr.Num() / TrajectoryNum;
 
 	UWorld* World = GetWorld();
-	for(float i = 0; i<=posArr.Num()-1; i+=stride)
+	if(posArr.Num()>0)
 	{
-		int idx = FMath::RoundToInt(i);
-		auto pos = posArr[idx];
-		World->SpawnActor(mTrajectoryActor, &pos.Location);
+		for (float i = 1; i <= posArr.Num() - 1; i += stride)
+		{
+			int idx = FMath::RoundToInt(i);
+			auto pos = posArr[idx];
+			World->SpawnActor(mTrajectoryActor, &pos.Location);
+		}
 	}
+	
 
 
-	//Å¸°ÝÁöÁ¡¿¡ Æø¹ß¹üÀ§¸¦ ³ªÅ¸³»´Â ¾×ÅÍ »ý¼º
-	AActor* FireRangeActor = World->SpawnActor(mFireRangeActor, &ImpactPoint);
+	//Å¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ß¹ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	if(Result.HitResult.bBlockingHit)
+	{
+		AActor* FireRangeActor = World->SpawnActor(mFireRangeActor, &ImpactPoint);
+		FVector Origin, Extents;
+		FireRangeActor->GetActorBounds(false, Origin, Extents, true);
+		float Scale = mProjectileInfo.ExplodeRange / Extents.X;
 
-	FVector Origin, Extents;
-	FireRangeActor->GetActorBounds(false, Origin, Extents, true);
-	float Scale = mProjectileInfo.ExplodeRange / Extents.X;
-
-	//UE_LOG(LogTemp, Warning, TEXT("BoundingBox Size : %s"), *Extents.ToString());
-	FireRangeActor->SetActorScale3D(FVector(Scale, Scale, Scale));
+		//UE_LOG(LogTemp, Warning, TEXT("BoundingBox Size : %s"), *Extents.ToString());
+		FireRangeActor->SetActorScale3D(FVector(Scale, Scale, Scale));
+	}
+		
 }
 
 void AProjectile::Clicking(float DeltaTime)
 {
-	//Å¬¸¯ÇÏ´Â ½Ã°£¸¸Å­ InitialSpeedÀÇ °ª Áõ°¡
+	//Å¬ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½Å­ InitialSpeedï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	FireRate += FireCoefficient * DeltaTime;
 }
 
 void AProjectile::PostActorCreated()
 {
-	UE_LOG(LogTemp, Error, TEXT("Pre PostActorCreated Firecoefficient : %f"), FireCoefficient);
+	UE_LOG(LogTemp, Warning, TEXT("Pre PostActorCreated Firecoefficient : %f"), FireCoefficient);
 	Super::PostActorCreated();
-	UE_LOG(LogTemp, Error, TEXT("Post PostActorCreated FireCoefficient : %f"), FireCoefficient);
+	UE_LOG(LogTemp, Warning, TEXT("Post PostActorCreated FireCoefficient : %f"), FireCoefficient);
+}
+
+void AProjectile::InitMesh()
+{
+	Super::InitMesh();
+	if (mMeshComponent == nullptr)
+		return;
+
+	if(mMeshComponent->DoesSocketExist(FireSocket))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InitMesh Socket Exists"));
+	}
+	else 
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InitMesh Socket Not Exists"));
+	}
+	//mGunPos->SetupAttachment(mMeshComponent, FireSocket);
+	mGunPos->AttachToComponent(mMeshComponent, FAttachmentTransformRules::KeepRelativeTransform
+		, FireSocket);
+
+
+
+}
+
+
+void AProjectile::BeginPlay()
+{
+	Super::BeginPlay();
+	SetLifeSpan(10.0f);
+	DrawDebugSphere(GetWorld(), GetActorLocation(), 30.f, 64, FColor::White, false, 3.f);
+	UE_LOG(LogTemp, Warning, TEXT("AProjectile BeginPlay"));
 }

@@ -20,7 +20,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	//¹ß»çÃ¼ Ãæµ¹½Ã ÄÝ¹éµÇ´Â ÇÔ¼ö
+	//ï¿½ß»ï¿½Ã¼ ï¿½æµ¹ï¿½ï¿½ ï¿½Ý¹ï¿½Ç´ï¿½ ï¿½Ô¼ï¿½
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };

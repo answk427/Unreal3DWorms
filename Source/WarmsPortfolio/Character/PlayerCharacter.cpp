@@ -71,10 +71,10 @@ APlayerCharacter::APlayerCharacter()
 	GetCapsuleComponent()->BodyInstance.bNotifyRigidBodyCollision = true;
 	GetMesh()->BodyInstance.bNotifyRigidBodyCollision = true;
 
-	//½ºÅÈÄÄÆ÷³ÍÆ®
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 	mStatComponent = CreateDefaultSubobject<UStatComponent>(TEXT("CharacterStatComp"));
 
-	//HpBar À§Á¬
+	//HpBar ï¿½ï¿½ï¿½ï¿½
 
 	mHpBarWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("HpWidget"));
 	mHpBarWidget->SetupAttachment(GetMesh());
@@ -91,9 +91,9 @@ APlayerCharacter::APlayerCharacter()
 		mHpBarWidget->SetDrawSize(FVector2D(200.0f, 100.0f));
 	}
 
-	//ÀÎº¥Åä¸®
+	//ï¿½Îºï¿½ï¿½ä¸®
 	mInventory = MakeShared<FInventory>();
-	//ÀåºñÃ¢
+	//ï¿½ï¿½ï¿½Ã¢
 	mEquipments = MakeShared<FPlayerEquipments>();
 
 	JumpMaxHoldTime = 3.0f;
@@ -114,7 +114,7 @@ void APlayerCharacter::BeginPlay()
 	InitInventoryWidget();
 	if (mProjectileTable == nullptr)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Character BeginPlay ProjectileTable nullptr"));
+		UE_LOG(LogTemp, Warning, TEXT("Character BeginPlay ProjectileTable nullptr"));
 		static UWPGameInstance* gameInstance = Cast<UWPGameInstance>(GetGameInstance());
 		if (gameInstance)
 			mProjectileTable = gameInstance->DataManager->GetTable(FName("Projectile"));
@@ -161,6 +161,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	//UE_LOG(LogTemp, Warning, TEXT("bFireHoldDown : %s"), bFireHoldDown? TEXT("true") : TEXT("false"));
+
 	if(bFireHoldDown)
 		Aiming();
 
@@ -251,7 +252,7 @@ void APlayerCharacter::Yaw(float Value)
 
 	if (Hanging)
 	{
-		//Ä³¸¯ÅÍ°¡ ·ÎÇÁ¸¦ ¹Ù¶óº¸µµ·Ï ÇÔ
+		//Ä³ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¶óº¸µï¿½ï¿½ï¿½ ï¿½ï¿½
 		FVector X = mRope->mCableStarts.Last() - GetActorLocation();
 		FVector Z = FVector::CrossProduct(X, GetActorRightVector());
 		FVector Y = FVector::CrossProduct(Z, X);
@@ -298,7 +299,7 @@ void APlayerCharacter::Aiming()
 	if(mCurrentWeapon == nullptr)
 		return;
 	
-	mCurrentWeapon->SetActorLocation(mWeaponPos->GetComponentLocation(), true);
+	//mCurrentWeapon->SetActorLocation(mWeaponPos->GetComponentLocation(), true);
 	mCurrentWeapon->Clicking(GetWorld()->GetDeltaSeconds());
 	mCurrentWeapon->DrawTrajectory();
 }
@@ -320,10 +321,10 @@ void APlayerCharacter::ClickedFire()
 		return;
 	}
 
-	//ÇöÀç Âø¿ëÁßÀÎ ¹«±â¸¦ °¡Á®¿È.
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â¸¦ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
 	const auto WeaponData = mEquipments->GetWeapon();
 
-	//Âø¿ëÁßÀÎ ¹«±â°¡ ¾øÀ» ½Ã ¸®ÅÏ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½â°¡ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (WeaponData == nullptr)
 		return;
 
@@ -342,7 +343,7 @@ void APlayerCharacter::ClickedFire()
 		if (World != nullptr)
 		{
 			const FRotator SpawnRotation = GetControlRotation();
-			//ÀÓ½Ã ÇÏµåÄÚµù offset º¤ÅÍ
+			//ï¿½Ó½ï¿½ ï¿½Ïµï¿½ï¿½Úµï¿½ offset ï¿½ï¿½ï¿½ï¿½
 			FVector GunOffset(100.0f, 0.0f, 10.0f);
 			FVector playerPos = GetActorLocation();
 
@@ -352,18 +353,20 @@ void APlayerCharacter::ClickedFire()
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
-			UE_LOG(LogTemp, Error, TEXT("Spawn AProjectile"));
+			UE_LOG(LogTemp, Warning, TEXT("Spawn AProjectile"));
 			
-			//ProjectileMovement ÄÄÆ÷³ÍÆ®°¡ ÃÊ±âÈ­ µÇ±â Àü¿¡ ÇØ´ç ¹ß»çÃ¼ÀÇ Á¤º¸¸¦ ¼³Á¤ÇÏ°í ½ºÆù
+			//ProjectileMovement ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½Ê±ï¿½È­ ï¿½Ç±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ø´ï¿½ ï¿½ß»ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ï¿½ï¿½
 			const FTransform SpawnTr(SpawnRotation, SpawnLocation);
 			
 			//AWeapon* SpawnedWeapon = World->SpawnActorDeferred<AWeapon>(WeaponUClass, SpawnTr, this, this);
-			mCurrentWeapon = World->SpawnActorDeferred<AWeapon>(WeaponUClass, SpawnTr, this, this);
+			//mCurrentWeapon = World->SpawnActorDeferred<AWeapon>(WeaponUClass, SpawnTr, this, this);
+			mCurrentWeapon = World->SpawnActorDeferred<AWeapon>(WeaponUClass, FTransform(), this, this);
 
 			//SpawnedWeapon->SetWeaponData(WeaponData->second.get());
 			mCurrentWeapon->SetWeaponData(WeaponData->second.get());
 			mCurrentWeapon->SetActorEnableCollision(false);
-			
+			UE_LOG(LogTemp, Warning, TEXT("Weapon Spawn Location : %s"), *mCurrentWeapon->GetActorLocation().ToString());
+			mCurrentWeapon->AttachToComponent(mWeaponPos, FAttachmentTransformRules::SnapToTargetIncludingScale);
 
 			//mCurrentWeapon->SetActorHiddenInGame(true);
 			//SpawnedWeapon->AttachToComponent(mWeaponPos, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
@@ -398,7 +401,7 @@ void APlayerCharacter::ReleasedFire()
 	UE_LOG(LogTemp, Warning, TEXT("ReleasedFire"));
 	bFireHoldDown = false;
 
-	if (mCurrentWeapon == nullptr)
+	if (mCurrentWeapon == nullptr || mCurrentWeapon->IsPendingKill())
 		return;
 
 	mCurrentWeapon->Fire();
@@ -409,7 +412,7 @@ float APlayerCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent
 {
 
 	UE_LOG(LogTemp, Warning, TEXT("TakeDamage Function Called"));
-	//ÁÖ·Î ApplyRadialDamage¿¡¼­ È£Ãâ µÊ
+	//ï¿½Ö·ï¿½ ApplyRadialDamageï¿½ï¿½ï¿½ï¿½ È£ï¿½ï¿½ ï¿½ï¿½
 	if (DamageEvent.IsOfType(FRadialDamageEvent::ClassID))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("TakeDamage Function FRadialDamageEvent"));
@@ -457,7 +460,7 @@ void APlayerCharacter::OpenInventory()
 
 	if (mInventoryWidget)
 	{
-		//¿©±ä Å×½ºÆ®¿ë ÄÚµå
+		//ï¿½ï¿½ï¿½ï¿½ ï¿½×½ï¿½Æ®ï¿½ï¿½ ï¿½Úµï¿½
 		//mInventory->AddWeaponItem(FItem(FName(TEXT("GrenadeTest")), EObjectTypeName::Projectile));
 		/*mEntry = Cast<UInventoryWeaponEntry>(CreateWidget(GetWorld(), mEntryClass));
 		UTextureRenderTarget2D* RenderTarget = NewObject<UTextureRenderTarget2D>(mEntry);
@@ -471,6 +474,7 @@ void APlayerCharacter::OpenInventory()
 		check(Inventory != nullptr);
 		mInventory->AddWeaponItem(FWPItem(FName(TEXT("GrenadeTest")), EObjectTypeName::Projectile));
 		mInventory->AddWeaponItem(FWPItem(FName(TEXT("MissileTest")), EObjectTypeName::Projectile));
+		mInventory->AddWeaponItem(FWPItem(FName(TEXT("RocketLauncher")), EObjectTypeName::Projectile));
 
 		auto Visibility = mInventoryWidget->GetVisibility();
 

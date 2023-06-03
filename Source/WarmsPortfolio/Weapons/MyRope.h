@@ -72,21 +72,21 @@ public:
 
 	void AddForceCharacter(float XInput, float YInput);
 
-	//╥нгабйю╦╥н ╡Ь╬Н╢Г╠Х
+	//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
 	void PullRope();
-	//╥нга©║╪╜ ╦ж╬НаЭ
+	//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ж╬О©╫О©╫О©╫
 	void PushRope();
 	void GetTangentVector(FVector& RightTangentVec, FVector& UpTangentVec);
 
 	void Fire(const FVector& Start, const FVector& CameraPos, const FRotator& CameraRot);
 
-	//гц╥╧юл╬Н©м ╥нга ╩Гюл©║ юЕ╬ж╧╟юл южю╩╤╖ ╩У╥н©Н диюл╨М ╩Щ╪╨
+	//О©╫ц╥О©╫О©╫л╬О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫л©О©╫ О©╫О©╫ж╧О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫н©О©╫ О©╫О©╫О©╫л╨О©╫ О©╫О©╫О©╫О©╫
 	void TraceBetweenAdd();
 
-	//гц╥╧юл╬Н©м ╥нга ╩Гюл©║ юЕ╬ж╧╟юл ╬Ью╦╦И диюл╨М а╕╟е
+	//О©╫ц╥О©╫О©╫л╬О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫л©О©╫ О©╫О©╫ж╧О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫л╨О©╫ О©╫О©╫О©╫О©╫
 	void TraceBetweenRemove();
 
-	//цж╠ы диюл╨М ю╖д║©м ╨Я╠Ёгь Tolerance╨╦╢ы юшю╦╦И True╧щх╞
+	//О©╫ж╠О©╫ О©╫О©╫О©╫л╨О©╫ О©╫О©╫д║О©╫О©╫ О©╫О©╫О©╫О©╫ ToleranceО©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ TrueО©╫О©╫х╞
 	bool ToleranceCheck(const FVector& Point);
 
 	void InitCable(UCableComponent* Cable);

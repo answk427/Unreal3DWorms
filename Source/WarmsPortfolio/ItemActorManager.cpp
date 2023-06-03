@@ -11,13 +11,14 @@
 
 AItemActor* UItemActorManager::AddItem(const FWPItem& Item)
 {
-	//╣╔юлемевюл╨М©║╪╜ гь╢Г ╬фюлеш©║ ╢Кгя а╓╨╦╦╕ ╟║а╝©х.
+	//О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫л╨О©╫О©╫О©╫О©╫ О©╫ь╢О©╫ О©╫О©╫О©╫О©╫О©╫ш©О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.
 	auto GameInstance = Cast<UWPGameInstance>(GetWorld()->GetGameInstance());
 	auto DataManager = GameInstance->DataManager;
 	auto WeaponData = DataManager->GetWeaponData(Item.GameObjectType, Item.ItemName, TEXT("CreateItemActorFunc"));
 
-	//гь╢Г ╬фюлешюг ╦ч╫╛╦╕ юл©Кгь ╬фюлеш╬вем ╩Щ╪╨
+	//О©╫ь╢О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ч╫О©╫О©╫О©╫ О©╫л©О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ш╬О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ 
 	AWeapon* WeaponActor = NewObject<AWeapon>(this, WeaponData->WeaponClass);
+	WeaponActor->InitMesh(); 
 	AItemActor* WeaponItemActor = NewObject<AItemActor>(this, AItemActor::StaticClass());
 	WeaponItemActor->Init(WeaponActor, Item);
 

@@ -11,7 +11,7 @@ class USphereComponent;
 class UProjectileMovementComponent;
 class AProjectileExplosionEffect;
 
-//¹ß»çÃ¼ Á¤º¸
+//ï¿½ß»ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
 USTRUCT(BlueprintType)
 struct FProjectileInfo
 {
@@ -27,13 +27,13 @@ public:
 	float MaxSpeed;
 
 	UPROPERTY(EditAnywhere)
-	float Weight; //¹«°Ô
+	float Weight; //ï¿½ï¿½ï¿½ï¿½
 
 	UPROPERTY(EditAnywhere)
-	float AttackPower; //°ø°Ý·Â
+	float AttackPower; //ï¿½ï¿½ï¿½Ý·ï¿½
 
 	UPROPERTY(EditAnywhere)
-	float ExplodeRange; //Æø¹ß¹üÀ§
+	float ExplodeRange; //ï¿½ï¿½ï¿½ß¹ï¿½ï¿½ï¿½
 
 
 public:
@@ -42,7 +42,6 @@ public:
 		Weight(10.0f), AttackPower(10.0f),ExplodeRange(100.0f){}
 
 	FProjectileInfo& operator=(const FProjectileData& tableData);
-	
 };
 
 UCLASS()
@@ -56,22 +55,22 @@ public:
 
 
 public:
-	//ÇöÀç °ø°Ý·Â. ÇÃ·¹ÀÌ¾îÀÇ È¿°ú¿¡ µû¶ó ±âº»°ø°Ý·Â¿¡¼­ ´Þ¶óÁú ¼ö ÀÖÀ½. (ex °ø°Ý·Â 2¹è)
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ý·ï¿½. ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½âº»ï¿½ï¿½ï¿½Ý·Â¿ï¿½ï¿½ï¿½ ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½. (ex ï¿½ï¿½ï¿½Ý·ï¿½ 2ï¿½ï¿½)
 	UPROPERTY()
 	float mCurrAttackPower;
 
 	void SetProjectileInfo(const FProjectileData* ProjectileData);
 	virtual UShapeComponent* GetCollider() const override;
 protected:
-	//¹ß»çÃ¼ Collision
+	//ï¿½ß»ï¿½Ã¼ Collision
 	UPROPERTY(VisibleDefaultsOnly, Category=Projectile)
 	USphereComponent* mCollisionComp;
 
-	//¹ß»çÃ¼ movement component, Æ½µ¿¾È ´Ù¸¥ ÄÄÆ÷³ÍÆ®ÀÇ À§Ä¡¸¦ ¾÷µ¥ÀÌÆ®ÇÔ
+	//ï¿½ß»ï¿½Ã¼ movement component, Æ½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Movement, meta = (AllowPrivateAccess))
 	UProjectileMovementComponent* mProjectileMovement;
 
-	//½ºÆùµÇ´Â Æø¹ßÀÌÆåÆ®
+	//ï¿½ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effect, meta = (AllowPrivateAccess))
 	TSubclassOf<AProjectileExplosionEffect> mExplosionFX;
 
@@ -80,7 +79,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile, meta = (AllowPrivateAccess))
 	TSubclassOf<AActor> mFireRangeActor;
-	//¹ß»çÃ¼ Á¤º¸
+	//ï¿½ß»ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= Projectile, meta = (AllowPrivateAccess))
 	//FProjectileInfo mProjectileInfo;
 
@@ -94,7 +93,7 @@ protected:
 
 	float FireRate = 1.0f;
 
-	//1ÃÊµ¿¾È Áõ°¡ÇÏ´Â FireRateÀÇ °ª
+	//1ï¿½Êµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ FireRateï¿½ï¿½ ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float FireCoefficient = 1.0f;
 
@@ -113,15 +112,11 @@ public:
 	virtual void DrawTrajectory() override;
 	virtual void Clicking(float DeltaTime) override;
 	virtual void PostActorCreated() override;
+	virtual void InitMesh() override;
+	
 };
 
 
 
 
-inline void AProjectile::BeginPlay()
-{
-	Super::BeginPlay();
-	SetLifeSpan(10.0f);
-	
-}
 

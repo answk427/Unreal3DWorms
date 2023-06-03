@@ -10,14 +10,14 @@ void UCountDownWidget::CountStart(float countTime)
 	mCountTime = countTime;
 
 		
-	//1ÃÊ¸¶´Ù ÅØ½ºÆ®¹Ú½º³»¿ë º¯°æ
+	//1ï¿½Ê¸ï¿½ï¿½ï¿½ ï¿½Ø½ï¿½Æ®ï¿½Ú½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	timerManager.SetTimer(mTimerHandle,
 		FTimerDelegate::CreateLambda(
 			[&]()
 	{
 		if (mCountTime < 1)
 		{
-			//Å¸ÀÌ¸Ó ÁßÁö
+			//Å¸ï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 			timerManager.ClearTimer(mTimerHandle);
 			
 			return;

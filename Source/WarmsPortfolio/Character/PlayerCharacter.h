@@ -47,7 +47,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* mCamera;
 
-	//ÇÃ·¹ÀÌ¾î ¿À¸¥ÂÊ ¼Õ°¡¶ô, ¹«±âÂø¿ëÀ§Ä¡ Socket¿¡ ºÙ¿©µÎ´Â SceneComponent
+	//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Õ°ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡ Socketï¿½ï¿½ ï¿½Ù¿ï¿½ï¿½Î´ï¿½ SceneComponent
 	UPROPERTY(VisibleDefaultsOnly)
 	USceneComponent* mWeaponPos;
 
@@ -58,18 +58,18 @@ public:
 	TSubclassOf<AWarmsPortfolioProjectile> mProjectileWarms2;
 
 
-	//½ºÅÈ °ü·Ã ÄÄÆ÷³ÍÆ®
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®
 	UPROPERTY(VisibleAnywhere)
 	UStatComponent* mStatComponent;
-	//Hp Bar À§Á¬
+	//Hp Bar ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
 	UWidgetComponent* mHpBarWidget;
 
-	//°¢ Ä³¸¯ÅÍ¸¶´Ù °¡Áö°í ÀÖ´Â ÀÎº¥Åä¸®
+	//ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½Í¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½Îºï¿½ï¿½ä¸®
 	TSharedPtr<FInventory> mInventory;
-	//Ä³¸¯ÅÍ°¡ Âø¿ëÁßÀÎ ÀåºñÃ¢
+	//Ä³ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ã¢
 	TSharedPtr<FPlayerEquipments> mEquipments;
-	//ÀÎº¥Åä¸® ºí·çÇÁ¸°Æ® À§Á¬
+	//ï¿½Îºï¿½ï¿½ä¸® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
 	TSubclassOf<UUserWidget> mInventoryWidgetClass;
 
@@ -103,7 +103,7 @@ private:
 public:
 	//void TestFunc();
 	
-	//XYÆò¸é¿¡¼­ÀÇ ¿òÁ÷ÀÓ
+	//XYï¿½ï¿½é¿¡ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	void UpDown(float Value);
 	void LeftRight(float Value);
 	void Yaw(float Value);
@@ -113,7 +113,7 @@ public:
 	void PullEnd();
 	void Push(float Value);
 
-	//¹ß»çÃ¼¸¦ ¹ß»çÇÏ´Â ÇÔ¼ö
+	//ï¿½ß»ï¿½Ã¼ï¿½ï¿½ ï¿½ß»ï¿½ï¿½Ï´ï¿½ ï¿½Ô¼ï¿½
 	void Aiming();
 	void ClickedFire();
 	void ReleasedFire();

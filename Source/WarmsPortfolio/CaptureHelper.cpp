@@ -12,7 +12,7 @@
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/Image.h"
 
-#include "EditorLevelUtils.h"
+
 #include <Engine/DirectionalLight.h>
 #include <Engine/SkyLight.h>
 
@@ -24,7 +24,7 @@
 #include "AssetRegistryModule.h"
 
 #include "Engine/LevelStreamingDynamic.h"
-
+#include "Components/MeshComponent.h"
 
 
 UCaptureHelper::UCaptureHelper()
@@ -57,25 +57,25 @@ void UCaptureHelper::DrawActorToTexture(UClass* ActorClass, UTextureRenderTarget
 	check(RenderTarget && ActorClass);
 	RenderTarget->InitAutoFormat(sizeX, sizeY);
 
-	//ÅØ½ºÃ³ÀÇ ÀüÃ¼ »ö»óÀ» ÃÊ±âÈ­
+	//ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
 	RenderTarget->ClearColor = FLinearColor(0.f, 1.f, 0.f, 1.f);
 	RenderTarget->UpdateResource();
 
 
 
-	//¾×ÅÍ ÇÏ³ª¸¦ ·»´õ¸µÇÏ±â À§ÇØ »ý¼ºÇÑ ¿ùµå°ø°£
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	UWorld* OffscreenWorld = UWorld::CreateWorld(EWorldType::GamePreview, true);
 
 
-	auto WorldSetting = OffscreenWorld->GetWorldSettings();
+	//auto WorldSetting = OffscreenWorld->GetWorldSettings();
 
-	UE_LOG(LogTemp, Warning, TEXT("OffscreenWorld : %p, WorldSetting : %p"), OffscreenWorld, WorldSetting);
+	//UE_LOG(LogTemp, Warning, TEXT("OffscreenWorld : %p, WorldSetting : %p"), OffscreenWorld, WorldSetting);
 
 	check(GetWorld());
 
-	(WorldSetting->LightmassSettings) = (GetWorld()->GetWorldSettings()->LightmassSettings);
+	//(WorldSetting->LightmassSettings) = (GetWorld()->GetWorldSettings()->LightmassSettings);
 
-	//ÇöÀç ¿ùµåÀÇ ÆòÇà±¤À» ¸ðµÎ º¹»çÇØ »õ·Î¿î ¿ùµå¿¡ Ãß°¡. °°Àº È¯°æ Á¶¼º
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½à±¤ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½å¿¡ ï¿½ß°ï¿½. ï¿½ï¿½ï¿½ï¿½ È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	for (TActorIterator<ADirectionalLight> It(GetWorld()); It; ++It)
 	{
 		auto Light = *It;
@@ -84,26 +84,26 @@ void UCaptureHelper::DrawActorToTexture(UClass* ActorClass, UTextureRenderTarget
 		Params.Template = Light;
 		auto SpawnedLight = OffscreenWorld->SpawnActor<ADirectionalLight>(Params);
 	}
-	//ÇöÀç ¿ùµåÀÇ SkyLight¸¦ ¸ðµÎ º¹»çÇØ »õ·Î¿î ¿ùµå¿¡ Ãß°¡. °°Àº È¯°æ Á¶¼º
-	for (TActorIterator<ASkyLight> It(GetWorld()); It; ++It)
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ SkyLightï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Î¿ï¿½ ï¿½ï¿½ï¿½å¿¡ ï¿½ß°ï¿½. ï¿½ï¿½ï¿½ï¿½ È¯ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	/*for (TActorIterator<ASkyLight> It(GetWorld()); It; ++It)
 	{
 		auto SkyLight = *It;
 		FActorSpawnParameters Params;
 		Params.Template = SkyLight;
 		auto SpawnedLight = OffscreenWorld->SpawnActor<ASkyLight>(Params);
 		SpawnedLight->SetActorRotation(FRotator(0.f, 45.f, 0.f));
-	}
-	for (TActorIterator<AAtmosphericFog> It(GetWorld()); It; ++It)
+	}*/
+	/*for (TActorIterator<AAtmosphericFog> It(GetWorld()); It; ++It)
 	{
 		auto AtmosphericFog = *It;
 		FActorSpawnParameters Params;
 		Params.Template = AtmosphericFog;
 		auto SpawnedFog = OffscreenWorld->SpawnActor<AAtmosphericFog>(Params);
 
-	}
+	}*/
 
 
-	//¿ùµå¿¡ Directional Light Ãß°¡
+	//ï¿½ï¿½ï¿½å¿¡ Directional Light ï¿½ß°ï¿½
 	ADirectionalLight* DirectionalLight = OffscreenWorld->SpawnActor<ADirectionalLight>(
 		FVector(100.0f, 100.0f, 300.0f), FRotator(-6.482239f, -66.309387f, 7.728075f));
 	DirectionalLight->GetLightComponent()->SetLightColor(FLinearColor::White);
@@ -111,58 +111,113 @@ void UCaptureHelper::DrawActorToTexture(UClass* ActorClass, UTextureRenderTarget
 	DirectionalLight->SetActorRotation(FRotator(0.f, 135.f, 0.f));
 
 
-	//Ä¸ÃÄÇÒ ¿¢ÅÍ¸¦ ½ºÆù½ÃÅ´
+	//Ä¸ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å´
 	const FTransform ActorTr(FRotator(0.0f, 0.0f, 0.0f),
 		FVector(0.0f, 0.0f, 0.0f));
 	AActor* SpawnedActor = OffscreenWorld->SpawnActor<AActor>(ActorClass, ActorTr);
+	//AActor* SpawnedActor = GetWorld()->SpawnActor<AActor>(ActorClass, ActorTr);
+	
 
-
-
-	// Ä¸ÃÄ ÄÄÆ÷³ÍÆ® »ý¼º, ÃÊ±âÈ­
+	// Ä¸ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½, ï¿½Ê±ï¿½È­
 	USceneCaptureComponent2D* SceneCaptureComponent = NewObject<USceneCaptureComponent2D>(SpawnedActor);
 
 	SceneCaptureComponent->AttachToComponent(SpawnedActor->GetRootComponent(),
 		FAttachmentTransformRules::KeepRelativeTransform);
 
 	FMinimalViewInfo ViewInfo;
-	//ViewInfo.AspectRatio = 1.0f; //Á¾È¾ºñ
-	//ViewInfo.FOV = 90.0f; //¼öÁ÷½Ã¾ß°¢
+	//ViewInfo.AspectRatio = 1.0f; //ï¿½ï¿½È¾ï¿½ï¿½
+	//ViewInfo.FOV = 90.0f; //ï¿½ï¿½ï¿½ï¿½ï¿½Ã¾ß°ï¿½
 	//ViewInfo.ProjectionMode = ECameraProjectionMode::Perspective;
 
 	
-	//MeshÀÇ Å©±â¸¦ ¾ò¾î¿È
+	//Meshï¿½ï¿½ Å©ï¿½â¸¦ ï¿½ï¿½ï¿½ï¿½
 	/*UMeshComponent* MeshComponent = SpawnedActor->FindComponentByClass<UMeshComponent>();
 	FVector BoxExtent = MeshComponent->Bounds.BoxExtent;*/
 	
 	FVector BoxExtent;
-	FVector Origin;
-	SpawnedActor->GetActorBounds(false, Origin, BoxExtent);
-	float MaxExtent = BoxExtent.GetAbsMax();
+	//FVector Origin;
+	//SpawnedActor->GetActorBounds(false, Origin, BoxExtent);
+	AWeapon* SpawnedWeapon = Cast<AWeapon>(SpawnedActor);
+	UMeshComponent* WeaponMeshComponent = nullptr;
+	if(SpawnedWeapon)
+	{
+		WeaponMeshComponent = SpawnedWeapon->GetMesh();
+	}
+	 
+	if(WeaponMeshComponent)
+	{
+		BoxExtent = SpawnedWeapon->GetMesh()->Bounds.BoxExtent;
+	}
 	
-	//Á÷±³Åõ¿µ ¼³Á¤
+	float MaxExtent = BoxExtent.GetAbsMax();
+
+	//0000 0ZYX 
+	char Flag = 0;
+
+	//Get Max, Second Max Axis
+	if (BoxExtent.X >= BoxExtent.Y)
+	{
+		Flag += 1;
+		if (BoxExtent.Y >= BoxExtent.Z)
+			Flag += 2;
+		else
+			Flag += 4;
+	}
+	else
+	{
+		Flag += 2;
+		if (BoxExtent.X >= BoxExtent.Z)
+			Flag += 1;
+		else
+			Flag += 4;
+	}
+
+	FRotator CameraRot;
+	FVector CameraMoveDir;
+	//Flag AND 111
+	switch(Flag & 7)
+	{
+	case 3: //011 XY Axis, Look XY Plane.
+		CameraMoveDir.Set(0.f, 0.f, 1.f);
+		CameraRot.Pitch = -90.f;
+		break;
+	case 5: //101 XZ Axis, Look XZ Plane
+		CameraMoveDir.Set(0.f, 1.f, 0.f);
+		CameraRot.Yaw = 90.f;
+		break;
+	case 6: //110 YZ Axis, Look YZ Plane
+		CameraMoveDir.Set(1.f, 0.f, 0.f);
+		break;
+	}
+	
+	
+	
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	ViewInfo.ProjectionMode = ECameraProjectionMode::Orthographic;
 	ViewInfo.OrthoWidth = MaxExtent * 2.5f;
 	ViewInfo.OrthoNearClipPlane = 0.0f;
-	ViewInfo.OrthoFarClipPlane = MaxExtent*3;
+	ViewInfo.OrthoFarClipPlane = MaxExtent*3; 
 		
 	SceneCaptureComponent->SetCameraView(ViewInfo);
 	
 	float CameraDistance;
 	CameraDistance = (10.0f / 8.0f)*(MaxExtent + 1);
-	//Ä«¸Þ¶óÀÇ À§Ä¡,¼Ó¼º ¼³Á¤
+	//Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡,ï¿½Ó¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 	SceneCaptureComponent->bCaptureEveryFrame = false;
-	SceneCaptureComponent->SetRelativeLocation(FVector(-CameraDistance, 0.f, 0.f));
+	//SceneCaptureComponent->SetRelativeLocation(FVector(-CameraDistance, 0.f, 0.f));
+	SceneCaptureComponent->SetRelativeLocation(-CameraDistance*CameraMoveDir);
+	SceneCaptureComponent->SetRelativeRotation(CameraRot);
 	SceneCaptureComponent->TextureTarget = RenderTarget;
 	SceneCaptureComponent->CaptureSource = SCS_SceneColorHDR;
 	SceneCaptureComponent->RegisterComponent();
 	SpawnedActor->AddOwnedComponent(SceneCaptureComponent);
 
-	//¾×ÅÍ¸¦ Á¦¿ÜÇÑ ´Ù¸¥°ÍµéÀº Ä¸ÃÄÇÏÁö ¾ÊÀ½
+	//ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¸ï¿½ï¿½Íµï¿½ï¿½ï¿½ Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	SceneCaptureComponent->ShowOnlyActorComponents(SpawnedActor);
 
 	SceneCaptureComponent->CaptureScene();
 
-	//ÀÓ½Ã·Î »ý¼ºÇß´ø ¿ùµå ÆÄ±«
+	//ï¿½Ó½Ã·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ß´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ä±ï¿½
 	OffscreenWorld->DestroyWorld(true);
 
 }
@@ -177,16 +232,16 @@ void UCaptureHelper::DrawActorToTexture(UClass* ActorClass, UTextureRenderTarget
 //
 //	check(RenderTarget && ActorClass);
 //	RenderTarget->InitAutoFormat(sizeX, sizeY);
-//	//ÅØ½ºÃ³ÀÇ ÀüÃ¼ »ö»óÀ» ÃÊ±âÈ­
+//	//ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
 //	RenderTarget->ClearColor = FLinearColor(0.f, 1.f, 0.f, 1.f);
 //	RenderTarget->UpdateResource();
 //
-//	//¾×ÅÍ ÇÏ³ª¸¦ ·»´õ¸µÇÏ±â À§ÇØ »ý¼ºÇÑ ¿ùµå°ø°£
+//	//ï¿½ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //	UWorld* OffscreenWorld = GetWorld();
 //	check(OffscreenWorld);
 //	
 //	//OffscreenWorld->InitWorld();
-//	//¿ùµå¿¡ Directional Light Ãß°¡
+//	//ï¿½ï¿½ï¿½å¿¡ Directional Light ï¿½ß°ï¿½
 //	
 //
 //	const FTransform ActorTr(FRotator(0.0f, 0.0f, 0.0f),
@@ -200,13 +255,13 @@ void UCaptureHelper::DrawActorToTexture(UClass* ActorClass, UTextureRenderTarget
 //		FAttachmentTransformRules::KeepRelativeTransform);
 //
 //	FMinimalViewInfo ViewInfo;
-//	ViewInfo.AspectRatio = 1.0f; //Á¾È¾ºñ
-//	ViewInfo.FOV = 90.0f; //¼öÁ÷½Ã¾ß°¢
+//	ViewInfo.AspectRatio = 1.0f; //ï¿½ï¿½È¾ï¿½ï¿½
+//	ViewInfo.FOV = 90.0f; //ï¿½ï¿½ï¿½ï¿½ï¿½Ã¾ß°ï¿½
 //	
 //
 //	SceneCaptureComponent->SetCameraView(ViewInfo);
 //
-//	//Ä«¸Þ¶óÀÇ À§Ä¡,¼Ó¼º ¼³Á¤
+//	//Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡,ï¿½Ó¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 //
 //	SceneCaptureComponent->bCaptureEveryFrame = false;
 //	SceneCaptureComponent->SetRelativeLocation(FVector(-25.0f, 0.f, 0.f));

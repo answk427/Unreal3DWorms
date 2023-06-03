@@ -14,7 +14,7 @@ class WARMSPORTFOLIO_API AWeapon : public AActor, public IGiveGameObjectType
 {
 	GENERATED_BODY()
 	
-public:	
+protected:	
 	// Sets default values for this actor's properties
 	AWeapon();
 
@@ -27,6 +27,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	USkeletalMesh* mSkeletalMesh = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MeshScale = 1.f;
+		 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -42,7 +45,7 @@ public:
 
 	virtual void SetWeaponData(const FWeaponData* WeaponData);
 
-	//±ËÀûÀ» ±×¸²
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¸ï¿½
 	virtual void DrawTrajectory();
 
 	// Called every frame
@@ -50,7 +53,19 @@ public:
 
 	void GetAdjustedStartLocation();
 
+	bool SetMesh(UStaticMesh* StaticMesh);
+	bool SetMesh(USkeletalMesh* SkeletalMesh);
+	UMeshComponent* GetMesh();
+	UMeshComponent* GetMesh() const;
+
+	virtual void InitMesh();
+
 	virtual void Fire();
-	//°ø°Ý¹öÆ°À» ²Ú ´©¸¦¶§ ½ÇÇàÇÒ ÇÔ¼ö
+	//ï¿½ï¿½ï¿½Ý¹ï¿½Æ°ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½
 	virtual void Clicking(float DeltaTime);
+	virtual void PreInitializeComponents() override;
+	virtual void OnConstruction(const FTransform& Transform) override;
+	virtual void PostInitializeComponents() override;
 };
+
+

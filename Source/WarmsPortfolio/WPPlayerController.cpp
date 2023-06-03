@@ -16,16 +16,16 @@ void AWPPlayerController::SetupInputComponent()
 //
 //	check(RenderTarget && ActorClass);
 //	RenderTarget->InitAutoFormat(sizeX, sizeY);
-//	//ÅØ½ºÃ³ÀÇ ÀüÃ¼ »ö»óÀ» ÃÊ±âÈ­
+//	//ï¿½Ø½ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½È­
 //	RenderTarget->ClearColor = FLinearColor(0.f, 1.f, 0.f, 1.f);
 //	RenderTarget->UpdateResource();
 //
-//	//¾×ÅÍ ÇÏ³ª¸¦ ·»´õ¸µÇÏ±â À§ÇØ »ý¼ºÇÑ ¿ùµå°ø°£
+//	//ï¿½ï¿½ï¿½ï¿½ ï¿½Ï³ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //	UWorld* OffscreenWorld = GetWorld();
 //	check(OffscreenWorld);
 //	
 //	//OffscreenWorld->InitWorld();
-//	//¿ùµå¿¡ Directional Light Ãß°¡
+//	//ï¿½ï¿½ï¿½å¿¡ Directional Light ï¿½ß°ï¿½
 //	
 //
 //	const FTransform ActorTr(FRotator(0.0f, 0.0f, 0.0f),
@@ -39,13 +39,13 @@ void AWPPlayerController::SetupInputComponent()
 //		FAttachmentTransformRules::KeepRelativeTransform);
 //
 //	FMinimalViewInfo ViewInfo;
-//	ViewInfo.AspectRatio = 1.0f; //Á¾È¾ºñ
-//	ViewInfo.FOV = 90.0f; //¼öÁ÷½Ã¾ß°¢
+//	ViewInfo.AspectRatio = 1.0f; //ï¿½ï¿½È¾ï¿½ï¿½
+//	ViewInfo.FOV = 90.0f; //ï¿½ï¿½ï¿½ï¿½ï¿½Ã¾ß°ï¿½
 //	
 //
 //	SceneCaptureComponent->SetCameraView(ViewInfo);
 //
-//	//Ä«¸Þ¶óÀÇ À§Ä¡,¼Ó¼º ¼³Á¤
+//	//Ä«ï¿½Þ¶ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡,ï¿½Ó¼ï¿½ ï¿½ï¿½ï¿½ï¿½
 //
 //	SceneCaptureComponent->bCaptureEveryFrame = false;
 //	SceneCaptureComponent->SetRelativeLocation(FVector(-25.0f, 0.f, 0.f));

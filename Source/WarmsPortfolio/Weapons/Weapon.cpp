@@ -9,10 +9,8 @@
 AWeapon::AWeapon()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-	mMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
-
-	
+	PrimaryActorTick.bCanEverTick = false;
+	//mMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
 }
 //
 //// Called when the game starts or when spawned
@@ -20,11 +18,14 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 	SetObjectType();
-	UE_LOG(LogTemp, Warning, TEXT("AWeapon::BeginPlay"));
+	
+
+	UE_LOG(LogTemp, Warning, TEXT("%s AWeapon::BeginPlay"), *GetName());
 }
 
 void AWeapon::SetWeaponData(const FWeaponData* WeaponData)
 {
+	InitMesh();
 }
 
 void AWeapon::DrawTrajectory()
@@ -70,6 +71,87 @@ void AWeapon::GetAdjustedStartLocation()
 	//return OutStartTrace;
 }
 
+bool AWeapon::SetMesh(UStaticMesh* StaticMesh)
+{
+	if (StaticMesh == nullptr)
+		return false;
+
+	if(mMeshComponent == nullptr)
+	{
+		//MeshComponent�� Nullptr�� ��� UStaticMeshComponent�� ����
+		mMeshComponent = NewObject<UStaticMeshComponent>(this);
+		mMeshComponent->SetupAttachment(GetRootComponent());
+		mMeshComponent->RegisterComponent();
+	}
+	else if(!Cast<UStaticMeshComponent>(mMeshComponent))
+	{
+		//MeshComponent�� Nullptr�� �ƴϰ� UStaticMeshComponent�� �ƴҰ�� false ����
+		return false;
+	}
+
+	((UStaticMeshComponent*)mMeshComponent)->SetStaticMesh(StaticMesh);
+
+	return true;
+}
+
+bool AWeapon::SetMesh(USkeletalMesh* SkeletalMesh)
+{
+	if (SkeletalMesh == nullptr)
+		return false;
+
+	if(mMeshComponent == nullptr)
+	{
+		//MeshComponent�� Nullptr�� ��� USkeletalMeshComponent�� ����
+		mMeshComponent = NewObject<USkeletalMeshComponent>(this);
+		mMeshComponent->SetupAttachment(GetRootComponent());
+		mMeshComponent->RegisterComponent();
+	}
+	else if (!Cast<USkeletalMeshComponent>(mMeshComponent))
+	{
+		//MeshComponent�� Nullptr�� �ƴϰ� USkeletalMeshComponent�� �ƴҰ�� false ����
+		return false;
+	}
+	((USkeletalMeshComponent*)mMeshComponent)->SetSkeletalMesh(SkeletalMesh);
+
+	return true;
+}
+
+UMeshComponent* AWeapon::GetMesh()
+{
+	return mMeshComponent;
+}
+
+UMeshComponent* AWeapon::GetMesh() const
+{
+	return mMeshComponent;
+}
+
+void AWeapon::InitMesh()
+{
+	SetMesh(mStaticMesh);
+	SetMesh(mSkeletalMesh);
+}
+
+void AWeapon::PreInitializeComponents()
+{
+	InitMesh();
+	Super::PreInitializeComponents();
+}
+
+void AWeapon::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	InitMesh();
+	UE_LOG(LogTemp, Warning, TEXT("%s AWeapon OnConstruction"), *GetName());
+}
+
+void AWeapon::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	if (mMeshComponent != nullptr)
+		mMeshComponent->SetRelativeScale3D(FVector(MeshScale, MeshScale, MeshScale));
+}
+
 void AWeapon::Fire()
 {
 	UE_LOG(LogTemp, Warning, TEXT("AWeapon Fire"));
@@ -77,6 +159,7 @@ void AWeapon::Fire()
 
 void AWeapon::Clicking(float DeltaTime)
 {
+
 }
 
 

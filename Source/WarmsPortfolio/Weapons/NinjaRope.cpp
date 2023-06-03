@@ -33,8 +33,9 @@ ANinjaRope::ANinjaRope()
 
 	mCableEnd->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
-	//·ÎÇÁ¿¡¼­ mesh´Â »ç¿ë¾ÈÇÔ.
-	mMeshComponent->SetVisibility(false);
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ meshï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.
+	//mMeshComponent->SetVisibility(false);
+
 	mCableEndCollision->OnComponentBeginOverlap.AddDynamic(this, &ANinjaRope::OnComponentBeginOverlap);
 }
 

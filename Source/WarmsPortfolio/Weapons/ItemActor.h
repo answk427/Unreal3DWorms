@@ -22,8 +22,11 @@ public:
 	AItemActor();
 		
 private:
+	UPROPERTY()
+	USceneComponent* DummyRoot;
+
 	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* mItemMesh;
+	UMeshComponent* mItemMesh;
 
 	UPROPERTY(EditAnywhere)
 	UNiagaraComponent* mItemEffect;
@@ -36,6 +39,12 @@ private:
 	UPROPERTY(EditAnywhere)
 	UWidgetComponent* mGetButtonWidget;
 
+
+private:
+	void AdjustEffectSize();
+	void InitButtonWidget();
+	void InitCollider(const AWeapon* WeaponSrc);
+	void InitMeshComponent(const AWeapon* WeaponSrc);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

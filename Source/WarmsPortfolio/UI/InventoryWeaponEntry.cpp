@@ -47,14 +47,15 @@ UTexture2D* UInventoryWeaponEntry::RenderTargetToTexture(UTextureRenderTarget2D*
 	UTexture2D* Texture2D = UTexture2D::CreateTransient(
 		RenderTarget->SizeX, RenderTarget->SizeY);
 
-	//°íÁ¤µÈ Å©±â·Î UIÃâ·ÂÀ» ÇÒ °ÍÀÌ¹Ç·Î ¹Ó¸ÊÀ» »ý¼ºÇÏÁö ¾ÊÀ½.
-	Texture2D->MipGenSettings = TMGS_NoMipmaps;
+	//UI Texture Setting
+	//Texture2D->MipGenSettings = TMGS_NoMipmaps;
+	
 	Texture2D->AddToRoot();
 	Texture2D->UpdateResource();
 
 	
 
-	//UTextureRenderTarget¿¡ ÀÖ´Â ÇÈ¼¿ Á¤º¸µéÀ» ImageData¿¡ º¹»ç
+	//UTextureRenderTargetï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½È¼ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ImageDataï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	FTextureRenderTargetResource* RenderTargetResource = RenderTarget->GameThread_GetRenderTargetResource();
 	
 	TArray<FColor> ImageData;
@@ -62,10 +63,10 @@ UTexture2D* UInventoryWeaponEntry::RenderTargetToTexture(UTextureRenderTarget2D*
 	RenderTargetResource->ReadPixels(ImageData, FReadSurfaceDataFlags(), 
 		FIntRect(0,0,RenderTarget->SizeX, RenderTarget->SizeY));
 	
-	//ImageDataÀÇ Byte Size
+	//ImageDataï¿½ï¿½ Byte Size
 	int32 Size = ImageData.Num() * sizeof(FColor);
 
-	//Texture2D¸¦ LockÇÏ°í ÇÊ¿äÇÑ °ø°£¸¸Å­ ÇÒ´çÇÏ¿© ImageData¸¦ º¹»ç
+	//Texture2Dï¿½ï¿½ Lockï¿½Ï°ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å­ ï¿½Ò´ï¿½ï¿½Ï¿ï¿½ ImageDataï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	Texture2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
 	void* Data = Texture2D->PlatformData->Mips[0].BulkData.Realloc(Size);
 	FMemory::Memcpy(Data, ImageData.GetData(), Size);

@@ -40,7 +40,7 @@ void AWarmsGameModeBase::BeginPlay()
 	check(GameInstance);
 	auto DataManager = GameInstance->DataManager;
 
-	//╣╔юлем евюл╨М©║ юж╢б ╦П╣Г ╬фюлеш©║ ╢Кгь ╬фюлеш©╒ем(бЬ©КX, ╫ю╣Ф©К) ╩Щ╪╨
+	//О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫л╨О©╫О©╫ О©╫ж╢О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ш©О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ш©О©╫О©╫О©╫(О©╫О©╫О©╫О©╫X, О©╫О©╫О©╫О©╫О©╫) О©╫О©╫О©╫О©╫
 	for(int i=0; i<EObjectTypeName::UnknownItem; ++i)
 	{
 		auto Items = DataManager->GetAllItem((EObjectTypeName)i);
@@ -50,7 +50,7 @@ void AWarmsGameModeBase::BeginPlay()
 		}
 	}
 
-	//юоа╓ ╫ц╟ё╦╤╢ы ╥╧╨╖©║ ╥ё╢Щ╬фюлеш ╫╨фЫ
+	//О©╫О©╫О©╫О©╫ О©╫ц╟О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫
 	ItemActorManager->SetSpawnTimer(GetWorld(), 5.0f, FVector(-1000.f, -1000.f, 300.f),
 		FVector(1000.f, 1000.f, 350.f));
 }

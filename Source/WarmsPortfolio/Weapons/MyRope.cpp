@@ -13,7 +13,7 @@
 
 AMyRope::AMyRope()
 {
-	//PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 	mRoot = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(mRoot);
 	mCable = CreateDefaultSubobject<UCableComponent>(TEXT("NinjaRope"));
@@ -47,7 +47,7 @@ void AMyRope::AddForceCharacter(float XInput, float YInput)
 	APlayerCharacter* Character = OwnerCharacter.Get();
 	UCharacterMovementComponent* MovementComponent = Character->GetCharacterMovement();
 
-	//µÎ°³ÀÇ Á¢º¤ÅÍ¸¦ ±âÀúº¤ÅÍ·Î »ç¿ë
+	//ï¿½Î°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ ï¿½ï¿½ï¿½
 	FVector RightTangentVec, UpTangentVec;
 	GetTangentVector(RightTangentVec, UpTangentVec);
 
@@ -56,7 +56,7 @@ void AMyRope::AddForceCharacter(float XInput, float YInput)
 	MovementComponent->AddInputVector(ForceVec.GetSafeNormal()*MovementPower);
 	//Character->SetActorLocation(Character->GetActorLocation() + ForceVec.GetSafeNormal()*MovementPower);
 
-	//Ä³¸¯ÅÍ°¡ ·ÎÇÁ¸¦ ¹Ù¶óº¸µµ·Ï ÇÔ
+	//Ä³ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¶óº¸µï¿½ï¿½ï¿½ ï¿½ï¿½
 	//FRotator Rot = UKismetMathLibrary::FindLookAtRotation(Character->GetActorLocation(), GetActorLocation());
 	//Character->SetActorRotation(Rot);
 }
@@ -70,15 +70,15 @@ void AMyRope::GetTangentVector(FVector& RightTangentVec, FVector& UpTangentVec)
 
 	FVector PlayerLocation = Character->GetActorLocation();
 
-	//·ÎÇÁ°¡ ½ÃÀÛµÇ´Â °÷À» Áß½ÉÀ¸·Î ±¸¸¦ »ý¼ºÇÑ´Ù°í °¡Á¤
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÛµÇ´ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ñ´Ù°ï¿½ ï¿½ï¿½ï¿½ï¿½
 	FVector SphereMidPoint = GetActorLocation();
 
-	//ÇÃ·¹ÀÌ¾î¿¡¼­ ±¸ÀÇ Áß½ÉÀ¸·Î ÇâÇÏ´Â º¤ÅÍ. ¹ý¼±º¤ÅÍÀÇ ¹Ý´ë¹æÇâ
+	//ï¿½Ã·ï¿½ï¿½Ì¾î¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ý´ï¿½ï¿½ï¿½ï¿½
 	FVector InverseNormalVec = SphereMidPoint - PlayerLocation;
 
-	//ÇÃ·¹ÀÌ¾îÀÇ ¿ìÃøÀ» ÇâÇÏ´Â Á¢¼±º¤ÅÍ¸¦ ±¸ÇÔ
+	//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 	RightTangentVec = -FVector::CrossProduct(InverseNormalVec.GetSafeNormal(), FVector::UpVector);
-	//ÇÃ·¹ÀÌ¾îÀÇ À§ÂÊÀ» ÇâÇÏ´Â Á¢¼±º¤ÅÍ¸¦ ±¸ÇÔ
+	//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½ï¿½ï¿½ï¿½
 	UpTangentVec = -FVector::CrossProduct(RightTangentVec, InverseNormalVec);
 }
 
@@ -179,10 +179,10 @@ void AMyRope::TraceBetweenAdd()
 		return;
 
 
-	//½ÃÀÛÁöÁ¡, Ä³¸¯ÅÍ ¼Õ
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, Ä³ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 	FVector Start = OwnerCharacter->mWeaponPos->GetComponentLocation();
 
-	//Á¾·áÁöÁ¡, ÃÖ±Ù ÄÉÀÌºíÀÇ ½ÃÀÛÀ§Ä¡
+	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½, ï¿½Ö±ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡
 	FVector End = LatestCable->GetComponentLocation();
 
 
@@ -195,10 +195,10 @@ void AMyRope::TraceBetweenAdd()
 	/*UKismetSystemLibrary::DrawDebugLine(GetWorld(), Start, End,
 		FLinearColor::Red, 0.1f, 5.0f); */
 	
-	//ÄÉÀÌºí¿¡ °É¸° ¹°Ã¼°¡ ÀÖÀ» ¶§
+	//ï¿½ï¿½ï¿½Ìºï¿½ï¿½ ï¿½É¸ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 	if (GetWorld()->LineTraceSingleByObjectType(OutHit, Start, End, ObjectQueryParams))
 	{
-		//³Ê¹« Á¼Àº °Å¸®ÀÎÁö °Ë»ç
+		//ï¿½Ê¹ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½
 		if (mCableStarts.Num() != 0)
 		{
 			
@@ -219,13 +219,14 @@ void AMyRope::TraceBetweenAdd()
 		UCableComponent* newCable = NewObject<UCableComponent>(this, UCableComponent::StaticClass(), *CableName);
 		InitCable(newCable);
 
-		//ÄÉÀÌºíÀ» HitµÈ ¹°Ã¼¿¡ ºÎÂø
+		//ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ Hitï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		newCable->AttachToComponent(OutHit.GetComponent(), FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		
 		newCable->SetWorldLocation(OutHit.Location);
 		newCable->SetAttachEndToComponent(OwnerCharacter->GetMesh(), TEXT("RightHandSocket"));
+		
 
-
-		//ÀÌÀü¿¡ ÀÖ´ø ÄÉÀÌºíÀÇ ³¡Àº »õ·Î »ý±ä ÄÉÀÌºí¿¡ ¿¬°á
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		LatestCable->SetAttachEndToComponent(newCable);
 		LatestCable = newCable;
 
@@ -244,18 +245,18 @@ void AMyRope::TraceBetweenRemove()
 
 	if (!OwnerCharacter.IsValid())
 		return;
-	//ÄÉÀÌºíÀÌ 2°³ ÀÌ»óÀÏ¶§¸¸ ½ÇÇà
+	//ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ 2ï¿½ï¿½ ï¿½Ì»ï¿½ï¿½Ï¶ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	if (mCableStarts.Num() < 2)
 		return;
 
 	int idx = mCableStarts.Num() - 2;
-	//ÇÃ·¹ÀÌ¾îÀÇ ¼Õ À§Ä¡
+	//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ä¡
 	FVector PlayerLoc = OwnerCharacter->GetMesh()->GetSocketLocation(TEXT("RightHandSocket"));
 	
-	//ÃÖ±Ù ÄÉÀÌºíÀÇ ½ÃÀÛÀ§Ä¡
+	//ï¿½Ö±ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡
 	FVector& LatestCableLoc = mCableStarts.Last();
 
-	//ÇÃ·¹ÀÌ¾î¿Í ÄÉÀÌºíÀÌ µü ºÙ¾îÀÖÀ» ¶§
+	//ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½Ù¾ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 	if (PlayerLoc.Equals(LatestCableLoc, ToleranceDistance))
 	{
 		RemoveLatestCable();
@@ -264,13 +265,13 @@ void AMyRope::TraceBetweenRemove()
 
 	FVector& LatestCableNormal = mCableNormals.Last();
 
-	//ÃÖ±Ù ÄÉÀÌºí ¹Ù·Î ÀÌÀü ÄÉÀÌºíÀÇ ½ÃÀÛÀ§Ä¡
+	//ï¿½Ö±ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½Ù·ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¡
 	FVector& PreLatestCableLoc = mCableStarts[idx];
 	FVector& PreLatestCableNormal = mCableNormals[idx];
 	
 
 #pragma region PlayerToPreTrace
-	//ÇÃ·¹ÀÌ¾î¿¡¼­ ÀÌÀü ÄÉÀÌºí¹æÇâÀ¸·Î Ãæµ¹ÇÏ´Â ¹°Ã¼°¡ ÀÖ´ÂÁö °Ë»ç
+	//ï¿½Ã·ï¿½ï¿½Ì¾î¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½æµ¹ï¿½Ï´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½
 	FHitResult OutHit;
 	FCollisionObjectQueryParams ObjectQueryParams(ECollisionChannel::ECC_WorldStatic);
 	FVector End = PlayerLoc + (PreLatestCableLoc - PlayerLoc)*0.91f;
@@ -279,20 +280,20 @@ void AMyRope::TraceBetweenRemove()
 	//UKismetSystemLibrary::DrawDebugLine(GetWorld(), PlayerLoc, End,
 	//	FLinearColor::Red, 2.0f, 3.0f);
 
-	//Ãæµ¹ÇÏ´Â ¹°Ã¼°¡ ÀÖÀ»°æ¿ì ÄÉÀÌºíÀ» Ç®Áö¾ÊÀ½
+	//ï¿½æµ¹ï¿½Ï´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ Ç®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	if (Result)
 	{
-		//Ãæµ¹ÇßÁö¸¸ ³Ê¹« °¡±î¿î °Å¸®ÀÏ °æ¿ì Á¦¿Ü
+		//ï¿½æµ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		if (!PreLatestCableLoc.Equals(OutHit.Location, ToleranceDistance))
 			return;
 	}
 #pragma endregion
 
 #pragma region CalcCableMiddleNormal
-	//ÄÉÀÌºíÀÇ ¾ç³¡ ¹ý¼±À» º¸°£ÇØ ÄÉÀÌºí Áß°£ÀÇ ¹ý¼±À» ±¸ÇÔ
+	//ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ç³¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ ï¿½ß°ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	FVector MiddleNormal = ((PreLatestCableNormal + LatestCableNormal) * 0.5f).GetSafeNormal();
 
-	//ÄÉÀÌºíÀÇ Áß°£ÁöÁ¡
+	//ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ï¿½ï¿½
 	FVector MiddleStart = PreLatestCableLoc + (LatestCableLoc - PreLatestCableLoc) * 0.5f;
 
 	//UKismetSystemLibrary::DrawDebugLine(GetWorld(), PreLatestCableLoc, PreLatestCableLoc + PreLatestCableNormal*200,
@@ -308,7 +309,7 @@ void AMyRope::TraceBetweenRemove()
 		FLinearColor::Black, 1.0f, 13.0f);*/
 
 
-	//ÄÉÀÌºíÀÇ Áß°£ÁöÁ¡À» ÇâÇØ LineTrace, Ãæµ¹ÇÏ´Â ¹°Ã¼°¡ ÀÖÀ¸¸é ¹°Ã¼ÀÇ Á¤È®ÇÑ ¹ý¼±À» »ç¿ë
+	//ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ß°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ LineTrace, ï¿½æµ¹ï¿½Ï´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½È®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 	if (GetWorld()->LineTraceSingleByObjectType(OutHit, MiddleStart + MiddleNormal, MiddleStart - MiddleNormal*10, ObjectQueryParams))
 	{
 		//UKismetSystemLibrary::DrawDebugSphere(GetWorld(), OutHitTemp.Location, 100, 12, FLinearColor::Red, 2.0f, 1.0f);
@@ -317,7 +318,7 @@ void AMyRope::TraceBetweenRemove()
 		UE_LOG(LogTemp, Warning, TEXT("***********HITdaHit********"));
 		MiddleNormal = OutHit.Normal;
 	}
-	//Ãæµ¹ÇÏ´Â ¹°Ã¼°¡ ¾ø´Ù¸é ÀÓÀÇ·Î ¹ý¼±º¤ÅÍ Á÷±³È­
+	//ï¿½æµ¹ï¿½Ï´ï¿½ ï¿½ï¿½Ã¼ï¿½ï¿½ ï¿½ï¿½ï¿½Ù¸ï¿½ ï¿½ï¿½ï¿½Ç·ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("**********No HIT**************"));
@@ -334,7 +335,7 @@ void AMyRope::TraceBetweenRemove()
 	UKismetSystemLibrary::DrawDebugPlane(GetWorld(), Plane, MiddleStart,
 		FVector::Distance(LatestCableLoc, PreLatestCableLoc) * 0.65f, FLinearColor::Black, 0.1f);
 
-	//ÃÖ±Ù ÄÉÀÌºíÀÌ ÀÌÀü ÄÉÀÌºíÀÇ Æò¸é°ú ÆòÇàÀÌ µÇ´ÂÁö °Ë»ç(¹ý¼±°ú ³»Àû)
+	//ï¿½Ö±ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ï¿½ï¿½ ï¿½Ë»ï¿½(ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½)
 	FVector LatestToPlayer = PlayerLoc - LatestCableLoc;
 	float DotResult = FVector::DotProduct(MiddleNormal, LatestToPlayer.GetSafeNormal());
 	UE_LOG(LogTemp, Warning, TEXT("Dot Result : %f"), DotResult);
@@ -343,7 +344,7 @@ void AMyRope::TraceBetweenRemove()
 	UKismetSystemLibrary::DrawDebugLine(GetWorld(), MiddleStart + MiddleNormal * 100, MiddleStart - MiddleNormal,
 		FLinearColor::Blue, 2.0f, 3.0f);
 
-	//ÃÖ±Ù ÄÉÀÌºí¿¡¼­ ÇÃ·¹ÀÌ¾î·Î ÇâÇÏ´Â º¤ÅÍ°¡ ÀÌÀü ÄÉÀÌºíÀÇ Æò¸éÀÇ À§·Î °¡°ÔµÇ¸é ÄÉÀÌºí»èÁ¦
+	//ï¿½Ö±ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ÔµÇ¸ï¿½ ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ï¿½
 	if(DotResult >= 0) 
 	{
 		UE_LOG(LogTemp, Warning, TEXT("************** DotResult = 0 ****************"));
@@ -404,7 +405,7 @@ void AMyRope::PostInitializeComponents()
 
 void AMyRope::AllClear()
 {
-	//0¹øÂ° CableÀº mCableÀÌ¹Ç·Î ±×´ë·Î µÐ´Ù.
+	//0ï¿½ï¿½Â° Cableï¿½ï¿½ mCableï¿½Ì¹Ç·ï¿½ ï¿½×´ï¿½ï¿½ ï¿½Ð´ï¿½.
 	for (int i= mCables.Num()-1; i> 0; --i)
 	{
 		mCables[i]->DestroyComponent();
@@ -440,7 +441,7 @@ void AMyRope::Activate()
 
 	OwnerCharacter->Hanging = true;
 	OwnerCharacter->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Flying);
-	//Ä³¸¯ÅÍ°¡ ·ÎÇÁ ¹æÇâÀ» ¹Ù¶óº¼ ¼ö ÀÖµµ·Ï ¼³Á¤
+	//Ä³ï¿½ï¿½ï¿½Í°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ù¶ï¿½ ï¿½ï¿½ ï¿½Öµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	OwnerCharacter->bUseControllerRotationYaw = false;
 	OwnerCharacter->mCamera->bUsePawnControlRotation = false;
 	UE_LOG(LogTemp, Warning, TEXT("=============AMyRope Activate==========="));

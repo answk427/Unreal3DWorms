@@ -21,9 +21,9 @@ class WARMSPORTFOLIO_API AGrenade : public AProjectile
 	AGrenade();
 
 private:
-	//최초로 속도가 0이되어 멈췄을때 true
+	//Is Grenade Stop?
 	bool bStopped = false;
-	//해당 변수만큼 지연 후 폭발
+	//Delay after Stop
 	float mExplodeDelay = 3.0f;
 
 public:
