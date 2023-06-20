@@ -71,12 +71,17 @@ void UCaptureHelper::DrawActorToTexture(UClass* ActorClass, UTextureRenderTarget
 
 	//UE_LOG(LogTemp, Warning, TEXT("OffscreenWorld : %p, WorldSetting : %p"), OffscreenWorld, WorldSetting);
 
-	check(GetWorld());
+	if(World == nullptr)
+	{
+		World = GetWorld();
+		check(World);
+	}
+	
 
 	//(WorldSetting->LightmassSettings) = (GetWorld()->GetWorldSettings()->LightmassSettings);
 
 	//���� ������ ���౤�� ��� ������ ���ο� ���忡 �߰�. ���� ȯ�� ����
-	for (TActorIterator<ADirectionalLight> It(GetWorld()); It; ++It)
+	for (TActorIterator<ADirectionalLight> It(World); It; ++It)
 	{
 		auto Light = *It;
 

@@ -7,6 +7,7 @@
 #include "StatComponent.generated.h"
 
 DECLARE_MULTICAST_DELEGATE(FHpChanged)
+DECLARE_MULTICAST_DELEGATE(FHpOnZero)
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class WARMSPORTFOLIO_API UStatComponent : public UActorComponent
@@ -34,6 +35,7 @@ public:
 	
 
 	FHpChanged HpChanged;
+	FHpOnZero HpOnZero;
 private:
 	UPROPERTY(EditAnywhere, Category = Stat, Meta = (AllowPrivateAccess = true))
 	int m_MaxHp;

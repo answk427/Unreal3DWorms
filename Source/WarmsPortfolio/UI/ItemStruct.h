@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "../GameObjectTypes.h"
+#include "GameObjectTypes.h"
 #include "ItemStruct.generated.h"
 
 

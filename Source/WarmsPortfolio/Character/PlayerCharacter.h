@@ -5,7 +5,9 @@
 #include "CoreMinimal.h"
 #include "Engine/PostProcessVolume.h"
 #include "GameFramework/Character.h"
+#include "Voxel/Public/VoxelCharacter.h"
 #include "PlayerCharacter.generated.h"
+
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -20,13 +22,17 @@ struct FInventory;
 struct FPlayerEquipments;
 class APostProcessVolume;
 class AWeapon;
-
+class UPlayerAnimation;
 
 UCLASS()
-class WARMSPORTFOLIO_API APlayerCharacter : public ACharacter
+class WARMSPORTFOLIO_API APlayerCharacter : public AVoxelCharacter
 {
 	GENERATED_BODY()
 
+	DECLARE_MULTICAST_DELEGATE_OneParam(FStartDamaged, TWeakObjectPtr<APlayerCharacter>);
+	DECLARE_MULTICAST_DELEGATE_OneParam(FEndDamaged, TWeakObjectPtr<APlayerCharacter>);
+	DECLARE_MULTICAST_DELEGATE_OneParam(FOnDie, TWeakObjectPtr<APlayerCharacter>);
+	
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -40,12 +46,25 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
+public:
+	FStartDamaged StartDamagedDelegate;
+	FEndDamaged EndDamagedDelegate;
+	FOnDie OnDieDelegate;
+
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* mSpringArm;
 
 	UPROPERTY(VisibleAnywhere)
 	UCameraComponent* mCamera;
+
+	UPROPERTY(VisibleAnywhere)
+	USpringArmComponent* mSpringArmSky;
+
+	UPROPERTY(VisibleAnywhere)
+	UCameraComponent* mCameraSky;
+
+
 
 	//�÷��̾� ������ �հ���, ����������ġ Socket�� �ٿ��δ� SceneComponent
 	UPROPERTY(VisibleDefaultsOnly)
@@ -93,12 +112,19 @@ public:
 	UPROPERTY(EditAnywhere)
 	float RopePower = 10.0f;
 
+	UPROPERTY(EditAnywhere)
+	float ImpulseRate = 200.0f;
+
+	UPROPERTY()
+	UPlayerAnimation* PlayerAnim;
+
 private:
 	UPROPERTY()
 	AWeapon* mCurrentWeapon = nullptr;
 
 	UPROPERTY()
 	bool bFireHoldDown = false;
+		
 	
 public:
 	//void TestFunc();
@@ -124,10 +150,27 @@ public:
 	void OpenInventory();
 
 	void AcquireItem();
+
+	//i value 0 = MainCamera, 1 = SkyCamera
+	void ActiveOneCamera(int i);
+
+	//폭발모션, 이펙트, 오브젝트 제거
+	void DieChecking();
+	
 			
 public:
 	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator,
 		AActor* DamageCauser) override;
+
+	//데미지를 입고있을 때 true
+	UPROPERTY(EditAnywhere, Category = "State")
+	bool bTakingDamage = false;
+
+	float TakingDamageTime = 0.f;
+
+	//죽었을때 미리 플래그를 해두는 변수
+	UPROPERTY()
+	bool bIsDead = false;
 
 	UPROPERTY()
 	float mVertical = 0;
@@ -144,6 +187,10 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void PreInitializeComponents() override;
 	virtual void Jump() override;
+
+	virtual void PostLoad() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	//virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved,
 	//	FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 

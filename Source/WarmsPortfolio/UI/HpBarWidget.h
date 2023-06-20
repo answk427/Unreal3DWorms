@@ -27,7 +27,7 @@ class WARMSPORTFOLIO_API UHpBarWidget : public UUserWidget
 	
 
 private:
-	//ÀÌ À§Á¬°ú ¿¬°üµÈ Ä³¸¯ÅÍÀÇ StatComponent
+	//ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ Ä³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ StatComponent
 	TWeakObjectPtr<UStatComponent> currStatComponent;
 public:
 	UPROPERTY(meta = (BindWidget))

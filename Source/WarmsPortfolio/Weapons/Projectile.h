@@ -66,6 +66,12 @@ protected:
 	UPROPERTY(VisibleDefaultsOnly, Category=Projectile)
 	USphereComponent* mCollisionComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USpringArmComponent* mSpringArm;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UCameraComponent* mCamera;
+
 	//�߻�ü movement component, ƽ���� �ٸ� ������Ʈ�� ��ġ�� ������Ʈ��
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Movement, meta = (AllowPrivateAccess))
 	UProjectileMovementComponent* mProjectileMovement;
@@ -97,7 +103,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float FireCoefficient = 1.0f;
 
-	virtual void Explode(const FHitResult& Impact);
+	virtual void  Explode(const FHitResult& Impact);
 
 	virtual void BeginPlay() override;
 		

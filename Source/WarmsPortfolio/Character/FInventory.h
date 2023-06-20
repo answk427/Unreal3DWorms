@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../UI/ItemStruct.h"
+#include "UI/ItemStruct.h"
 #include "FInventory.generated.h"
 
 

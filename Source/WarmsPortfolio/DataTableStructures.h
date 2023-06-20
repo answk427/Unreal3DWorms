@@ -24,7 +24,7 @@ struct FWeaponData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	FName WeaponName;
-	//°ø°Ý·Â
+	//ï¿½ï¿½ï¿½Ý·ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Weapon)
 	float AttackPower;
 
@@ -48,24 +48,24 @@ struct FProjectileData : public FWeaponData
 	}
 	//Name
 
-	//¿øÇü ÄÝ¸®´õ Radius
+	//ï¿½ï¿½ï¿½ï¿½ ï¿½Ý¸ï¿½ï¿½ï¿½ Radius
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 	float Radius;
 
-	//Åõ»çÃ¼ ÃÖ´ë ¼Óµµ
+	//ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½Ö´ï¿½ ï¿½Óµï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 	float MaxSpeed;
 
-	//Åõ»çÃ¼ ÃÊ±â ¼Óµµ
+	//ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½Ê±ï¿½ ï¿½Óµï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 	float InitialSpeed;
 
-	//Åõ»çÃ¼ ¹«°Ô
+	//ï¿½ï¿½ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 	float Weight;
 	
 
-	//Æø¹ß¹üÀ§
+	//ï¿½ï¿½ï¿½ß¹ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 	float ExplodeRange;
 		
@@ -82,7 +82,7 @@ struct FProjectileData : public FWeaponData
 	}*/
 };
 
-//°ÔÀÓÀÌ ½ÃÀÛµÉ ¶§ ·Îµù ÇÒ µ¥ÀÌÅÍÅ×ÀÌºíÀÇ ¸ñ·Ï
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ûµï¿½ ï¿½ï¿½ ï¿½Îµï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ìºï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
 USTRUCT()
 struct FInitDataTables : public FTableRowBase
 {

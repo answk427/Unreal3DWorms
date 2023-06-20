@@ -5,7 +5,7 @@
 
 #include "Components/EditableTextBox.h"
 #include "Components/ProgressBar.h"
-#include "../Character/StatComponent.h"
+#include "Character/StatComponent.h"
 #include "Components/EditableText.h"
 
 UHpBarWidget::UHpBarWidget(const FObjectInitializer& ObjInitializer)

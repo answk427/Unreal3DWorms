@@ -5,11 +5,14 @@
 
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "../Effects/ProjectileExplosionEffect.h"
+#include "Effects/ProjectileExplosionEffect.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
-
-#include "../DataTableStructures.h"
+#include "DataTableStructures.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
+#include "WarmsGameModeBase.h"
+#include "Kismet/KismetMathLibrary.h"
 
 FProjectileInfo& FProjectileInfo::operator=(const FProjectileData& tableData)
 {
@@ -67,13 +70,19 @@ AProjectile::AProjectile()
 	
 	UE_LOG(LogTemp, Warning, TEXT("Constructor InitInfo.InitialSpeed : %f"), mProjectileInfo.InitialSpeed);
 	UE_LOG(LogTemp, Warning, TEXT("Constructor FireCoefficient : %f"), FireCoefficient);
+
+	mSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARM"));
+	mCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERA"));
+
+	mSpringArm->SetupAttachment(GetRootComponent());
+	mSpringArm->SetRelativeLocation(FVector::ZeroVector);
+	mCamera->SetupAttachment(mSpringArm);
 	//InitialLifeSpan = 10.0f;
 	
 	
 	//SetActorEnableCollision(true);
 	//mCollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	
-}
+} 
 
 void AProjectile::PostInitializeComponents()
 {
@@ -146,8 +155,23 @@ inline void AProjectile::Explode(const FHitResult& Impact)
 			UGameplayStatics::FinishSpawningActor(EffectActor, SpawnTransform);
 			UE_LOG(LogTemp, Warning, TEXT("FinishSpawningActor End"));
 		}
-		ApplyDamage(Impact);
 	}
+
+	//전역카메라로 폭발지점을 보여줍니다.
+	float CameraDistance = 800.f;
+
+	FVector CameraLoc = Impact.ImpactPoint + Impact.ImpactNormal*CameraDistance;
+	FRotator CameraRot = UKismetMathLibrary::FindLookAtRotation(CameraLoc, Impact.ImpactPoint);
+
+	((AWarmsGameModeBase*)GetWorld()->GetAuthGameMode())->UseWorldCamera(CameraLoc,
+		CameraRot);
+
+	ApplyDamage(Impact);
+
+	//폭발범위만큼 지형파괴
+	RemoveVoxelSphere(Impact.ImpactPoint, mProjectileInfo.ExplodeRange);
+
+	
 	UE_LOG(LogTemp, Warning, TEXT("Projectile Explode"));
 }
 
@@ -155,11 +179,15 @@ void AProjectile::ApplyDamage(const FHitResult& Impact)
 {
 	TArray<AActor*> Ignores;
 
+
 	DrawDebugSphere(GetWorld(), Impact.ImpactPoint, mProjectileInfo.ExplodeRange, 16,
 		FColor::Red, false, 2.0f);
 
+	
 	UGameplayStatics::ApplyRadialDamage(GetWorld(), mProjectileInfo.AttackPower, Impact.ImpactPoint,
 		mProjectileInfo.ExplodeRange, nullptr, Ignores, this);
+
+	
 }
 
 float AProjectile::GetInitialSpeed()
@@ -342,6 +370,7 @@ void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
 	SetLifeSpan(10.0f);
+	mSpringArm->SetRelativeLocation(FVector::ZeroVector);
 	DrawDebugSphere(GetWorld(), GetActorLocation(), 30.f, 64, FColor::White, false, 3.f);
 	UE_LOG(LogTemp, Warning, TEXT("AProjectile BeginPlay"));
 }

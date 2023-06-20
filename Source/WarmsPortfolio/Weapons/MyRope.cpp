@@ -2,7 +2,7 @@
 
 
 #include "MyRope.h"
-#include "../Character/PlayerCharacter.h"
+#include "Character/PlayerCharacter.h"
 #include "CableComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -136,7 +136,6 @@ void AMyRope::PushRope()
 
 void AMyRope::Fire(const FVector& Start, const FVector& CameraPos, const FRotator& CameraRot)
 {
-	
 	FHitResult OutHit;
 	//FVector Start = GetActorLocation();
 	FVector End = CameraPos + CameraRot.Vector() * FireDistance;

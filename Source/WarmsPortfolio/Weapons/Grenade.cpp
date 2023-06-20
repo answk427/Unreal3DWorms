@@ -6,7 +6,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "../UI/CountDownWidget.h"
+#include "UI/CountDownWidget.h"
 #include "Components/TextBlock.h"
 
 AGrenade::AGrenade()
@@ -105,4 +105,5 @@ void AGrenade::Explode(const FHitResult& CurrPos)
 			1.0f, false, 1.0f);
 
 	}), 1.0f, false, mExplodeDelay);
+
 }

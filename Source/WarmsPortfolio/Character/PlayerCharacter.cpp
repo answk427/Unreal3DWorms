@@ -10,26 +10,32 @@
 #include <Components/WidgetComponent.h>
 
 #include <Components/SceneComponent.h>
-#include "../Weapons/Projectile.h"
-#include "../WarmsPortfolioProjectile.h"
+#include "Weapons/Projectile.h"
+#include "WarmsPortfolioProjectile.h"
 
 #include "StatComponent.h"
-#include "../UI/HpBarWidget.h"
-#include "../WPGameInstance.h"
+#include "UI/HpBarWidget.h"
+#include "WPGameInstance.h"
 
 #include "Engine/DataTable.h"
-#include "../DataTableStructures.h"
+#include "DataTableStructures.h"
 
 #include "FInventory.h"
 #include "PlayerEquipments.h"
-#include "../UI/InventoryWeaponWidget.h"
-#include "../CaptureHelper.h"
+#include "UI/InventoryWeaponWidget.h"
+#include "CaptureHelper.h"
 #include "Components/TextBlock.h"
-#include "../Weapons/ItemActor.h"
-#include "../Weapons/MyRope.h"
+#include "Weapons/ItemActor.h"
+#include "Weapons/MyRope.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/PostProcessVolume.h"
 #include "Kismet/KismetMathLibrary.h"
+
+#include "WarmsGameModeBase.h"
+
+#include "DrawDebugHelpers.h"
+#include "PlayerAnimation.h"
+
 
 UDataTable* APlayerCharacter::mProjectileTable = nullptr;
 
@@ -47,6 +53,12 @@ APlayerCharacter::APlayerCharacter()
 
 	mSpringArm->SetupAttachment(RootComponent);
 	mCamera->SetupAttachment(mSpringArm);
+
+	mSpringArmSky = CreateDefaultSubobject<USpringArmComponent>(TEXT("SPRINGARMSKY"));
+	mCameraSky = CreateDefaultSubobject<UCameraComponent>(TEXT("CAMERASKY"));
+
+	mSpringArmSky->SetupAttachment(RootComponent);
+	mCameraSky->SetupAttachment(mSpringArmSky);
 
 
 	GetMesh()->SetRelativeLocationAndRotation(
@@ -103,14 +115,13 @@ APlayerCharacter::APlayerCharacter()
 	mWeaponPos = CreateDefaultSubobject<USceneComponent>(TEXT("GunPos"));
 	mWeaponPos->SetupAttachment(GetMesh(), WeaponSocket);
 
-
 }
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	InitInventoryWidget();
 	if (mProjectileTable == nullptr)
 	{
@@ -154,6 +165,11 @@ void APlayerCharacter::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("ProcessVolume Search Fail"));
 	}
 
+	AWarmsGameModeBase* MyGameMode = Cast<AWarmsGameModeBase>(GetWorld()->GetAuthGameMode());
+	StartDamagedDelegate.AddUObject(MyGameMode, &AWarmsGameModeBase::AddDamagedPlayer);
+	EndDamagedDelegate.AddUObject(MyGameMode, &AWarmsGameModeBase::RemoveDamagedPlayer);
+	OnDieDelegate.AddUObject(MyGameMode, &AWarmsGameModeBase::DieCharacter);
+
 }
 
 // Called every frame
@@ -164,6 +180,28 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	if(bFireHoldDown)
 		Aiming();
+
+	if (bTakingDamage)
+	{
+		TakingDamageTime += DeltaTime;
+		UE_LOG(LogTemp, Warning, TEXT("GetVelocity : %f"), GetVelocity().Size());
+		//데미지를 받은 이후로 캐릭터의 속도가 0이되면 턴을 종료할 준비를 함
+		if (TakingDamageTime > 1.f && bTakingDamage)
+		{
+			if (GetVelocity().IsNearlyZero(5.f))
+			{
+				GetCapsuleComponent()->SetSimulatePhysics(false);
+				SetActorRotation(FRotator::ZeroRotator);
+				UE_LOG(LogTemp, Error, TEXT("Tick bTakingDamage false"));
+				bTakingDamage = false;
+				TakingDamageTime = 0.f;
+				EndDamagedDelegate.Broadcast(this);
+			}
+		}
+		
+	}
+
+	
 
 	//GetCharacterMovement()->AddInputVector(FVector(1.0f, 0.f, 0.f));
 
@@ -180,6 +218,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
+	UE_LOG(LogTemp, Warning, TEXT("SetupPlayerInputComponent Actor Name : %s , PlayerInputComponentName : %s"), *GetName(), *PlayerInputComponent->GetName());
 
 	PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Pressed, this, &APlayerCharacter::ClickedFire);
 	//PlayerInputComponent->BindAction(TEXT("Fire"), EInputEvent::IE_Repeat, this, &APlayerCharacter::Aiming);
@@ -326,7 +366,10 @@ void APlayerCharacter::ClickedFire()
 
 	//�������� ���Ⱑ ���� �� ����
 	if (WeaponData == nullptr)
+	{
 		return;
+	}
+		
 
 	if (mCurrentWeapon != nullptr)
 	{
@@ -398,6 +441,13 @@ void APlayerCharacter::ClickedFire()
 
 void APlayerCharacter::ReleasedFire()
 {
+	float X, Y;
+	X = FMath::FRandRange(-6000.f, 1500.f);
+	Y = FMath::FRandRange(3000.f, 9000.f);
+
+	FVector SpawnLocation;
+	((AWarmsGameModeBase*)GetWorld()->GetAuthGameMode())->CheckHeight(X, Y, SpawnLocation);
+
 	UE_LOG(LogTemp, Warning, TEXT("ReleasedFire"));
 	bFireHoldDown = false;
 
@@ -405,11 +455,16 @@ void APlayerCharacter::ReleasedFire()
 		return;
 
 	mCurrentWeapon->Fire();
+
+	((AWarmsGameModeBase*)GetWorld()->GetAuthGameMode())->SwitchCamera(mCurrentWeapon);
+
 }
 
 float APlayerCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator,
                                    AActor* DamageCauser)
 {
+	StartDamagedDelegate.Broadcast(this);
+	GetCapsuleComponent()->SetSimulatePhysics(true);
 
 	UE_LOG(LogTemp, Warning, TEXT("TakeDamage Function Called"));
 	//�ַ� ApplyRadialDamage���� ȣ�� ��
@@ -418,7 +473,21 @@ float APlayerCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent
 		UE_LOG(LogTemp, Warning, TEXT("TakeDamage Function FRadialDamageEvent"));
 		mStatComponent->SetHp((float)mStatComponent->GetHp() - Damage);
 		UE_LOG(LogTemp, Warning, TEXT("TakeDamage CurrentHp : %f"), mStatComponent->GetHp());
+
+		GetCapsuleComponent()->AddRadialImpulse(DamageCauser->GetActorLocation(), 500.f, Damage * ImpulseRate, ERadialImpulseFalloff::RIF_Linear, true);
+		
+		DrawDebugSphere(GetWorld(), DamageCauser->GetActorLocation(), 500.f, 16,
+			FColor::Blue, false, 2.0f);
+		
+		UE_LOG(LogTemp, Warning, TEXT("TakeDamage DamageCauser %s"), *DamageCauser->GetActorLocation().ToString());
+		
+		//GetMovementComponent()->AddRadialImpulse(GetActorLocation(), 100.f, 100.f, ERadialImpulseFalloff::RIF_Linear, true);
+		
 	}
+
+	//오브젝트에 힘을 가한 뒤에 true로 변경해야 함
+	bTakingDamage = true;
+	
 
 	return Damage;
 }
@@ -519,6 +588,28 @@ void APlayerCharacter::AcquireItem()
 	FirstItem->Destroy();
 }
 
+void APlayerCharacter::ActiveOneCamera(int i)
+{
+	switch(i)
+	{
+	case 0 :
+		mCamera->SetActive(true);
+		mCameraSky->SetActive(false);
+		break;
+	case 1:
+		mCamera->SetActive(false);
+		mCameraSky->SetActive(true);
+		break;
+	}
+
+}
+
+void APlayerCharacter::DieChecking()
+{
+	bIsDead = true;
+	AWarmsGameModeBase* MyGameMode = Cast<AWarmsGameModeBase>(GetWorld()->GetAuthGameMode());
+	MyGameMode->AddDeadPlayer(this);
+}
 
 
 void APlayerCharacter::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -529,27 +620,35 @@ void APlayerCharacter::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, U
 void APlayerCharacter::OnSphereComponentBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	
 	UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter BeginOverlap, OtherActotr : %s"), *OtherActor->GetName());
 }
 
 void APlayerCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
+	UE_LOG(LogTemp, Error, TEXT("*************%s PostInitializeComponents*********************"), *GetName());
 	mHpBarWidget->InitWidget();
 
 	verify(mStatComponent != nullptr);
+
+	//체력이 0이 됐을 때 사망플래그 표시
+	mStatComponent->HpOnZero.AddUObject(this, &APlayerCharacter::DieChecking);
+	//mStatComponent->HpOnZero.AddLambda([this]() {bIsDead = true; });
+
 	UHpBarWidget* hpBarInstance = Cast<UHpBarWidget>(mHpBarWidget->GetUserWidgetObject());
 	if (hpBarInstance)
 	{
 		hpBarInstance->BindingStatComp(mStatComponent);
 	}
 
+	PlayerAnim = Cast<UPlayerAnimation>(GetMesh()->GetAnimInstance());
 }
 
 void APlayerCharacter::PreInitializeComponents()
 {
 	Super::PreInitializeComponents();
+	UE_LOG(LogTemp, Error, TEXT("*************%s PreInitializeComponents*********************"), *GetName());
 	//verify(mStatComponent != nullptr);
 }
 
@@ -564,6 +663,20 @@ void APlayerCharacter::Jump()
 		Super::Jump();
 	}
 
+}
+
+void APlayerCharacter::PostLoad()
+{
+	Super::PostLoad();
+	UE_LOG(LogTemp, Error, TEXT("*************%s PostLoad*********************"), *GetName());
+}
+
+void APlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (bTakingDamage)
+		EndDamagedDelegate.Broadcast(this);
 }
 
 //void APlayerCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp,

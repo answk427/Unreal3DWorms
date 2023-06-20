@@ -72,7 +72,7 @@ public:
 
 	void AddForceCharacter(float XInput, float YInput);
 
-	//���������� ������
+	//로프를 당기는 함수
 	void PullRope();
 	//�������� �־���
 	void PushRope();

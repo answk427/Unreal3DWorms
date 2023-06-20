@@ -2,7 +2,10 @@
 
 
 #include "Weapon.h"
-#include "../DataTableStructures.h"
+#include "DataTableStructures.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Voxel/Public/VoxelWorld.h"
+#include "Voxel/Public/VoxelTools/Gen/VoxelSphereTools.h"
 
 
 // Sets default values
@@ -11,6 +14,8 @@ AWeapon::AWeapon()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	//mMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponMesh"));
+		
+
 }
 //
 //// Called when the game starts or when spawned
@@ -26,6 +31,7 @@ void AWeapon::BeginPlay()
 void AWeapon::SetWeaponData(const FWeaponData* WeaponData)
 {
 	InitMesh();
+	
 }
 
 void AWeapon::DrawTrajectory()
@@ -124,6 +130,34 @@ UMeshComponent* AWeapon::GetMesh()
 UMeshComponent* AWeapon::GetMesh() const
 {
 	return mMeshComponent;
+}
+
+void AWeapon::RemoveVoxelSphere(const FVector& Pos, float Radius)
+{
+	TArray<AActor*> Results;
+
+	//Find Actors in Sphere
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
+	
+
+	UKismetSystemLibrary::SphereOverlapActors(GetWorld(), Pos, Radius, ObjectTypes,
+		AVoxelWorld::StaticClass(), TArray<AActor*>(), Results);
+
+	for(auto Actor : Results)
+	{
+		AVoxelWorld* HitVoxelWorld = Cast<AVoxelWorld>(Actor);
+
+		if (HitVoxelWorld)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("HitVoxelWorld"));
+			UVoxelSphereTools::RemoveSphere(HitVoxelWorld, Pos, Radius);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("No Hit VoxelWorld"));
+		}
+	}
 }
 
 void AWeapon::InitMesh()

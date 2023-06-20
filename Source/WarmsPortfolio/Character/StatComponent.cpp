@@ -55,11 +55,15 @@ float UStatComponent::GetMaxHp()
 
 void UStatComponent::SetHp(float Hp)
 {
-	//�ݿø�
+	//�ݿø�
 	m_Hp = roundf(Hp);
 	
-	if (m_Hp < 0)
+	if (m_Hp <= 0)
+	{
 		m_Hp = 0;
+		HpOnZero.Broadcast();
+	}
+		
 
 	HpChanged.Broadcast();
 }

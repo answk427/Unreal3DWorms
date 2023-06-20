@@ -5,7 +5,7 @@
 #include "CableComponent.h"
 #include "Components/SphereComponent.h"
 #include "PhysicsEngine/PhysicsConstraintComponent.h"
-#include "../Character/PlayerCharacter.h"
+#include "Character/PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 

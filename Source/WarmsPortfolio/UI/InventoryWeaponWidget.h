@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "../Character/FInventory.h"
+#include "Character/FInventory.h"
 #include "InventoryWeaponWidget.generated.h"
 
 
@@ -24,7 +24,7 @@ class WARMSPORTFOLIO_API UInventoryWeaponWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-	//Scene Capture¸¦ ¿©·¯¹ø ÇÏÁö ¾Ê±âÀ§ÇØ static º¯¼ö·Î »ç¿ë
+	//Scene Captureï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½ï¿½ï¿½ static Øºï¿½ï¿½ï¿½ Î»ï¿½
 	static TMap<FName, UMaterialInstanceDynamic*> WeaponListItems;
 
 public:
@@ -34,7 +34,7 @@ public:
 	FOnClickedInventory ClickedInventory;
 	
 
-	//¹ÙÀÎµù µÈ ÀÎº¥Åä¸®
+	//ï¿½ï¿½ï¿½Îµ ï¿½ ï¿½ï¿½Îºï¿½ï¿½ä¸®
 	TWeakPtr<FInventory> PlayerInventory;
 	
 private:
@@ -44,12 +44,12 @@ private:
 	TWeakObjectPtr<UInventoryWeaponEntry> SelectedEntry;
 	
 public:
-	//Entry Å¬·¡½º
+	//Entry Å¬ï¿½ï¿½ï¿½ï¿½
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
 	TSubclassOf<UInventoryWeaponEntry> InventoryEntryClass;
 
 public:
-	//ÀÎº¥Åä¸®¿¡ ¾ÆÀÌÅÛÀÌ Ãß°¡µÉ ¶§¸¶´Ù ½ÇÇàµÇ´Â ÄÝ¹éÇÔ¼ö
+	//ï¿½Îºï¿½ï¿½ä¸®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ß°ï¿½ï¿½ É¶ï¿½ï¿½ï¿½ï¿½ Ù½ï¿½ï¿½ï¿½Ç´ ï¿½ï¿½Ý¹ï¿½ï¿½Ô¼
 	void AddListItem(const FWPItem& Item);
 	//void RemoveEntry(const FItem& item);
 	void BindInventory(TWeakPtr<FInventory> Inventory, TWeakPtr<FPlayerEquipments> Equipments);

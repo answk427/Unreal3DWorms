@@ -2,7 +2,7 @@
 
 
 #include "PlayerEquipments.h"
-#include "../Weapons/Weapon.h"
+#include "Weapons/Weapon.h"
 
 
 FPlayerEquipments::FPlayerEquipments()
@@ -15,7 +15,7 @@ void FPlayerEquipments::EquipWeapon(const FWPItem& item, const FWeaponData& Weap
 	UE_LOG(LogTemp, Warning, TEXT("EquipWeapon"));
 
 
-	//ÀÌ¹Ì °°Àº ¾ÆÀÌÅÛÀ» ÀåÂøÁßÀÌ¸é ¸®ÅÏ
+	//ï¿½Ì¹ Ì°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¸ é¸®ï¿½
 	if (CurrentWeapon != nullptr && CurrentWeapon->first.ItemName == item.ItemName)
 		return;
 

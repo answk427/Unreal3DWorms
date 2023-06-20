@@ -6,9 +6,12 @@
 #include "Animation/AnimInstance.h"
 #include "PlayerAnimation.generated.h"
 
+
+class AProjectileExplosionEffect;
 /**
  * 
  */
+
 UCLASS()
 class WARMSPORTFOLIO_API UPlayerAnimation : public UAnimInstance
 {
@@ -17,9 +20,27 @@ class WARMSPORTFOLIO_API UPlayerAnimation : public UAnimInstance
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 public:
 	UPlayerAnimation();
+
 	
+	void PlayDieMotion();
+
+	UFUNCTION()
+	void AnimNotify_DieExplosion();
+
+
 
 private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effect, meta = (AllowPrivateAccess))
+	TSubclassOf<AProjectileExplosionEffect> mExplosionFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effect, meta = (AllowPrivateAccess))
+	float DieExplosionRange = 300.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Effect, meta = (AllowPrivateAccess))
+	float DieExplosionDamage = 10.f;
+
+	
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	float Horizontal;
 
@@ -35,5 +56,9 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	bool Hanging;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	bool TakingDamage;
+		
+	UAnimMontage* DieMotionMontage;
 
 };

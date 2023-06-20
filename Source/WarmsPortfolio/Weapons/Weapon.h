@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "../GiveGameObjectType.h"
+#include "GiveGameObjectType.h"
 #include "Weapon.generated.h"
 
 struct FWeaponData;
+class UCameraComponent;
+class USpringArmComponent;
 
 UCLASS()
 class WARMSPORTFOLIO_API AWeapon : public AActor, public IGiveGameObjectType
@@ -29,7 +31,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MeshScale = 1.f;
-		 
+		
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -58,6 +61,9 @@ public:
 	UMeshComponent* GetMesh();
 	UMeshComponent* GetMesh() const;
 
+	
+	void RemoveVoxelSphere(const FVector& Pos, float Radius);
+
 	virtual void InitMesh();
 
 	virtual void Fire();
@@ -66,6 +72,8 @@ public:
 	virtual void PreInitializeComponents() override;
 	virtual void OnConstruction(const FTransform& Transform) override;
 	virtual void PostInitializeComponents() override;
+
+	
 };
 
 

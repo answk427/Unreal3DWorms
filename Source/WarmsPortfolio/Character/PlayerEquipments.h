@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "../UI/ItemStruct.h"
-#include "../DataTableStructures.h"
+#include "UI/ItemStruct.h"
+#include "DataTableStructures.h"
 #include "memory"
 #include "PlayerEquipments.generated.h"
 
@@ -25,7 +25,7 @@ struct WARMSPORTFOLIO_API FPlayerEquipments
 
 	using WeaponItemPair = std::pair<FWPItem, std::unique_ptr<FWeaponData>>;
 private:
-	//FWeaponData¸¦ Æ÷À×¤¤ÅÍ·Î ¹Ù²ã¾ßÇÔ. std::pair<FWPItem, std::unique_ptr<FWeaponData>>·Î?
+	//FWeaponDataï¿½ï¿½ ï¿½ï¿½ï¿½×¤ï¿½ï¿½Í· Î¹Ù²ï¿½ï¿½ï¿½. std::pair<FWPItem, std::unique_ptr<FWeaponData>>Ô·?
 	std::unique_ptr<WeaponItemPair> CurrentWeapon = nullptr;
 	
 public:
@@ -37,7 +37,7 @@ public:
 		return *this;
 	}
 
-	//¹«±â Âø¿ë ÇÔ¼ö
+	//Î¹ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½Ô¼
 	void EquipWeapon(const FWPItem& item, const FWeaponData& WeaponData);
 
 	const WeaponItemPair* GetWeapon() const

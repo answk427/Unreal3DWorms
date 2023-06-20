@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "../UI/ItemStruct.h"
+#include "UI/ItemStruct.h"
 #include "ItemActor.generated.h"
 
 
