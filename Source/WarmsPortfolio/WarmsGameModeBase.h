@@ -48,6 +48,10 @@ private:
 
 	FTimerHandle SwitchCameraTimerHandler;
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float LookGraveDuration = 1.5f;
+
 private:
 	bool CheckDamagedPlayer(TWeakObjectPtr<APlayerCharacter> Player);
 	
@@ -59,6 +63,7 @@ public:
 
 	UPROPERTY()
 	UItemActorManager* ItemActorManager;
+
 
 
 public:
@@ -89,7 +94,7 @@ public:
 	void SwitchDeadCharacterCamera(float Duration, float BlendTime = 0.75f);
 
 
-	void UseWorldCamera(const FVector& WorldLocation, const FRotator& Rotator, const AActor* TargetActor = nullptr, float Duration, float BlendTime = 0.4f);
+	void UseWorldCamera(const FVector& WorldLocation, const FRotator& Rotator, const AActor* TargetActor = nullptr, float Duration = 1.0f, float BlendTime = 0.4f);
 
 	void DieCharacter(TWeakObjectPtr<APlayerCharacter> Player);
 

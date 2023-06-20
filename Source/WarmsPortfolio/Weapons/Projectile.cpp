@@ -164,7 +164,7 @@ inline void AProjectile::Explode(const FHitResult& Impact)
 	FRotator CameraRot = UKismetMathLibrary::FindLookAtRotation(CameraLoc, Impact.ImpactPoint);
 
 	((AWarmsGameModeBase*)GetWorld()->GetAuthGameMode())->UseWorldCamera(CameraLoc,
-		CameraRot);
+		CameraRot, nullptr, 0.75f);
 
 	ApplyDamage(Impact);
 

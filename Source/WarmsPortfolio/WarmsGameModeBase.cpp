@@ -320,7 +320,7 @@ void AWarmsGameModeBase::NextTurn()
 
 void AWarmsGameModeBase::SwitchCamera(AActor* Camera)
 {
-	GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(Camera, 1.f);
+	GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(Camera, 0.75f);
 }
 
 void AWarmsGameModeBase::SwitchMultiCamera(float Duration, float BlendTime)
@@ -337,7 +337,7 @@ void AWarmsGameModeBase::SwitchMultiCamera(float Duration, float BlendTime)
 		//Switch Other Character's Camerae
 		SwitchDamagedCharacterCamera(Duration);
 		UE_LOG(LogTemp, Error, TEXT("SwitchMultiCamera In Timer"));
-	}), Duration + BlendTime, true, 1.f);
+	}), Duration + BlendTime, true, 0.75f);
 }
 
 void AWarmsGameModeBase::SwitchDamagedCharacterCamera(float Duration, float BlendTime)
@@ -363,24 +363,24 @@ void AWarmsGameModeBase::SwitchDamagedCharacterCamera(float Duration, float Blen
 	} while(!CheckDamagedPlayer(DamagedPlayers[CurrentIdx]));
 
 	DamagedPlayers[CurrentIdx].Get()->ActiveOneCamera(1);
-	
-
 	GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(DamagedPlayers[CurrentIdx].Get(), BlendTime);
 }
 
 inline void AWarmsGameModeBase::SwitchDeadCharacterCamera(float Duration, float BlendTime)
 {
 	//Offset은 카메라가 한 캐릭터에 머무는 시간
-	float Offset = BlendTime + Duration + 1.f;
+	float Offset = BlendTime + Duration + LookGraveDuration;
 	float FirstDelay = -Offset;
 	UE_LOG(LogTemp, Error, TEXT("SwitchDeadCharacterCamera Duration : %f"), Duration);
 
 	for(auto DeadPlayer : DeadPlayers)
 	{
 		if (!DeadPlayer.IsValid())
+		{
+			DeadPlayers.Pop();
 			continue;
-		
-		
+		}
+					
 		FirstDelay += Offset;
 
 		DeadPlayer.Get()->ActiveOneCamera(1);
@@ -391,29 +391,28 @@ inline void AWarmsGameModeBase::SwitchDeadCharacterCamera(float Duration, float 
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
 			[&, DeadPlayer]()
 		{
+				DeadPlayers.Pop();
 				if(DeadPlayer.IsValid())
 				{
 					DeadPlayer->PlayerAnim->PlayDieMotion();
 					GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(DeadPlayer.Get(), BlendTime);
 				}
-
-			
 		}), Duration + BlendTime, false, FirstDelay);
 	}
 
 	FirstDelay += Offset;
-	FTimerHandle TimerHandle;
-
-	DeadPlayers.Reset();
-
 	
 
-	//모든 캐릭터를 비추고 몇초 뒤 다음턴으로 넘어감
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
-		[&]()
-	{
-		NextTurn();
-	}), Duration + BlendTime, false, FirstDelay);
+	//DeadPlayers.Reset();
+
+	
+	//FTimerHandle TimerHandle;
+	////모든 캐릭터를 비추고 몇초 뒤 다음턴으로 넘어감
+	//GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda(
+	//	[&]()
+	//{
+	//	NextTurn();
+	//}), Duration + BlendTime, false, FirstDelay);
 
 }
 
@@ -431,12 +430,12 @@ void AWarmsGameModeBase::UseWorldCamera(const FVector& WorldLocation, const FRot
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
 	{
-		if (DamagedPlayerNum == 0)
+		if (DamagedPlayerNum == 0 && DeadPlayers.Num() == 0)
 		{
 			NextTurn();
 		}
 			
-	}), 1.f, false, BlendTime*1.5f);
+	}), 1.f, false, Duration);
 }
 
 void AWarmsGameModeBase::DieCharacter(TWeakObjectPtr<APlayerCharacter> Player)
@@ -447,8 +446,8 @@ void AWarmsGameModeBase::DieCharacter(TWeakObjectPtr<APlayerCharacter> Player)
 	//묘비를 스폰하기 전 카메라 위치를 저장한 뒤
 	//World Camera로 대신한다.
 	APlayerCharacter* CurrPlayer = Player.Get();
-	FVector CameraLoc = CurrPlayer->mCamera->GetComponentLocation();
-	FRotator CameraRot = CurrPlayer->mCamera->GetComponentRotation();
+	FVector CameraLoc = CurrPlayer->mCameraSky->GetComponentLocation();
+	FRotator CameraRot = CurrPlayer->mCameraSky->GetComponentRotation();
 	
 
 	//죽은 캐릭터 대신 묘비 스폰
@@ -457,7 +456,7 @@ void AWarmsGameModeBase::DieCharacter(TWeakObjectPtr<APlayerCharacter> Player)
 	AGraveActor* Grave = (AGraveActor*)GetWorld()->SpawnActor(AGraveActor::StaticClass(), &SpawnLocation, &SpawnRotator);
 	Grave->SetMeshColor(FColor::Green);
 
-	UseWorldCamera(CameraLoc, CameraRot, Grave, 0.f);
+	UseWorldCamera(CameraLoc, CameraRot, nullptr, LookGraveDuration, 0.f);
 	
 		
 
@@ -468,7 +467,7 @@ void AWarmsGameModeBase::DieCharacter(TWeakObjectPtr<APlayerCharacter> Player)
 		if(IsValid(CurrPlayer))
 			CurrPlayer->Destroy();
 		Grave->GraveMesh->SetSimulatePhysics(true);
-	}), 1.f, false, 2.0f);
+	}), 1.f, false, 1.0f);
 }
 
 void AWarmsGameModeBase::PostLoad()
