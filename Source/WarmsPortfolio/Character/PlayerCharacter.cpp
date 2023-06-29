@@ -64,10 +64,10 @@ APlayerCharacter::APlayerCharacter()
 	GetMesh()->SetRelativeLocationAndRotation(
 		FVector(0.f, 0.f, -88.f), FRotator(0.f, -90.0f, 0.f));
 
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMesh(TEXT("SkeletalMesh'/Game/MyCharacter/Mesh/character.character'"));
+	/*static ConstructorHelpers::FObjectFinder<USkeletalMesh> SkeletalMesh(TEXT("SkeletalMesh'/Game/MyCharacter/Mesh/character.character'"));
 
 	if (SkeletalMesh.Succeeded())
-		GetMesh()->SetSkeletalMesh(SkeletalMesh.Object);
+		GetMesh()->SetSkeletalMesh(SkeletalMesh.Object);*/
 
 	AWarmsPortfolioProjectile* projectile = CreateDefaultSubobject<AWarmsPortfolioProjectile>(TEXT("projectile"));
 	UClass* uprojectile = projectile->GetClass();
@@ -165,6 +165,8 @@ void APlayerCharacter::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("ProcessVolume Search Fail"));
 	}
 
+	
+
 	AWarmsGameModeBase* MyGameMode = Cast<AWarmsGameModeBase>(GetWorld()->GetAuthGameMode());
 	StartDamagedDelegate.AddUObject(MyGameMode, &AWarmsGameModeBase::AddDamagedPlayer);
 	EndDamagedDelegate.AddUObject(MyGameMode, &AWarmsGameModeBase::RemoveDamagedPlayer);
@@ -184,12 +186,13 @@ void APlayerCharacter::Tick(float DeltaTime)
 	if (bTakingDamage)
 	{
 		TakingDamageTime += DeltaTime;
-		UE_LOG(LogTemp, Warning, TEXT("GetVelocity : %f"), GetVelocity().Size());
+		
 		//데미지를 받은 이후로 캐릭터의 속도가 0이되면 턴을 종료할 준비를 함
 		if (TakingDamageTime > 1.f && bTakingDamage)
 		{
 			if (GetVelocity().IsNearlyZero(5.f))
 			{
+				UE_LOG(LogTemp, Warning, TEXT("GetVelocity : %f"), GetVelocity().Size());
 				GetCapsuleComponent()->SetSimulatePhysics(false);
 				SetActorRotation(FRotator::ZeroRotator);
 				UE_LOG(LogTemp, Error, TEXT("Tick bTakingDamage false"));
@@ -198,7 +201,12 @@ void APlayerCharacter::Tick(float DeltaTime)
 				EndDamagedDelegate.Broadcast(this);
 			}
 		}
-		
+	}
+
+	if(IsInWaterFull())
+	{
+		DieInWater();
+		//UE_LOG(LogTemp, Warning, TEXT("diffZ = %f, CharacterHeight : %f"), diffZ, CharacterHeight);
 	}
 
 	
@@ -241,11 +249,28 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &APlayerCharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &APlayerCharacter::StopJumping);
 	PlayerInputComponent->BindAction(TEXT("ActionPull"), EInputEvent::IE_Released, this, &APlayerCharacter::PullEnd);
+	PlayerInputComponent->BindAction(TEXT("ToggleCursor"), EInputEvent::IE_Released, this, &APlayerCharacter::ToggleShowCursor);
 
 	PlayerInputComponent->BindAxis(TEXT("Pull"), this, &APlayerCharacter::Pull);
 	PlayerInputComponent->BindAxis(TEXT("Push"), this, &APlayerCharacter::Push);
 
-	
+}
+
+void APlayerCharacter::ToggleShowCursor()
+{
+	auto MyController = GetWorld()->GetFirstPlayerController();
+
+	//Toggle이므로 현재 bool값에서 뒤집음.
+	bool ShowCursor = !MyController->bShowMouseCursor;
+
+	/*if (ShowCursor)
+		MyController->SetInputMode(FInputModeUIOnly());
+	else
+		MyController->SetInputMode(FInputModeGameAndUI());*/
+
+
+	MyController->SetShowMouseCursor(ShowCursor);
+
 }
 
 void APlayerCharacter::UpDown(float Value)
@@ -338,7 +363,8 @@ void APlayerCharacter::Aiming()
 {
 	if(mCurrentWeapon == nullptr)
 		return;
-	
+
+	PlayerAnim->PlayAimingMotion();
 	//mCurrentWeapon->SetActorLocation(mWeaponPos->GetComponentLocation(), true);
 	mCurrentWeapon->Clicking(GetWorld()->GetDeltaSeconds());
 	mCurrentWeapon->DrawTrajectory();
@@ -446,8 +472,7 @@ void APlayerCharacter::ReleasedFire()
 	Y = FMath::FRandRange(3000.f, 9000.f);
 
 	FVector SpawnLocation;
-	((AWarmsGameModeBase*)GetWorld()->GetAuthGameMode())->CheckHeight(X, Y, SpawnLocation);
-
+	
 	UE_LOG(LogTemp, Warning, TEXT("ReleasedFire"));
 	bFireHoldDown = false;
 
@@ -549,8 +574,7 @@ void APlayerCharacter::OpenInventory()
 
 		UE_LOG(LogTemp, Warning, TEXT("OpenInventory mInventoryWidget not Null"));
 
-
-		//ESlateVisibility
+				
 
 		switch (Visibility)
 		{
@@ -611,6 +635,33 @@ void APlayerCharacter::DieChecking()
 	MyGameMode->AddDeadPlayer(this);
 }
 
+void APlayerCharacter::SetColor(FLinearColor& Color)
+{
+	TeamColor = Color;
+
+	FVector ColorVec(Color.R, Color.G, Color.B);
+	GetMesh()->SetVectorParameterValueOnMaterials(FName(TEXT("CharacterColor")),ColorVec);
+	
+
+	UHpBarWidget* hpBarInstance = Cast<UHpBarWidget>(mHpBarWidget->GetUserWidgetObject());
+	hpBarInstance->SetHpBarColor(Color);
+	/*	UMaterialInstanceDynamic* Material =
+		UMaterialInstanceDynamic::Create(GraveMaterial, this);
+	Material->SetVectorParameterValue(ColorParamName, Color);
+	GraveMesh->SetMaterial(0, Material);*/
+}
+
+void APlayerCharacter::SetTeam(int Number)
+{
+	TeamNumber = Number;
+}
+
+void APlayerCharacter::Init(FLinearColor& Color, int TeamNum)
+{
+	SetColor(Color);
+	SetTeam(TeamNum);
+}
+
 
 void APlayerCharacter::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -662,7 +713,7 @@ void APlayerCharacter::Jump()
 	{
 		Super::Jump();
 	}
-
+	
 }
 
 void APlayerCharacter::PostLoad()
@@ -677,6 +728,8 @@ void APlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	if (bTakingDamage)
 		EndDamagedDelegate.Broadcast(this);
+
+	UE_LOG(LogTemp, Warning, TEXT("%s EndPlay"), *GetName());
 }
 
 //void APlayerCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp,
@@ -685,3 +738,52 @@ void APlayerCharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
 //	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 //	UE_LOG(LogTemp, Warning, TEXT("*****PlayerCharacter NotifyHit, OtherActor : %s"), *Other->GetName());
 //}
+
+
+inline void APlayerCharacter::EnterWater()
+{
+	bInWater = true;
+	WaterZ = GetActorLocation().Z;
+
+}
+
+inline void APlayerCharacter::ExitWater()
+{
+	bInWater = false;
+}
+
+void APlayerCharacter::DieInWater()
+{
+	if (bIsDead)
+		return;
+
+	//물에 완전 빠지면 사망처리
+	if(!bTakingDamage)
+	{
+		bTakingDamage = true;
+		StartDamagedDelegate.Broadcast(this);
+	}
+	UE_LOG(LogTemp, Warning, TEXT("DieInWater"));
+
+	mStatComponent->SetHp(0);
+				   		
+}
+
+bool APlayerCharacter::IsInWaterFull()
+{
+	if (!bInWater)
+		return false;
+
+	float diffZ = WaterZ - GetActorLocation().Z;
+	float CharacterHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+
+	//입수할 때 물의 Z값과 현재 Z값의 차이가 캐릭터의 높이/2 보다 크면 완전잠수상태
+	if (diffZ > CharacterHeight * 2)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("InWaterFull"));
+		return true;
+	}
+
+	return false;
+}
+

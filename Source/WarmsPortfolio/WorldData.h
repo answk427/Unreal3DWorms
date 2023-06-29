@@ -20,6 +20,9 @@ public:
 	//The Mximum Height a Character can Spawned 
 	UPROPERTY(EditAnywhere, Category = "MapInfo")
 	float SpawnMaxHeight;
+
+	UPROPERTY(EditAnywhere, Category = "MapInfo")
+	float SpawnMinHeight;
 	
 public:	
 	// Sets default values for this actor's properties

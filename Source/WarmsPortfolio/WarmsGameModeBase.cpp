@@ -17,6 +17,7 @@
 #include "Voxel/Public/VoxelWorld.h"
 #include "CinematicCamera/Public/CineCameraActor.h"
 #include "GraveActor.h"
+#include "PlayerStateWidget.h"
 
 
 AWarmsGameModeBase::AWarmsGameModeBase()
@@ -54,6 +55,7 @@ AWarmsGameModeBase::AWarmsGameModeBase()
 		UE_LOG(LogTemp, Warning, TEXT("-====--- MyCharacterClass Fail"));
 	}
 	ItemActorManager = CreateDefaultSubobject<UItemActorManager>(TEXT("ItemActorManager"));
+	UE_LOG(LogTemp, Warning, TEXT("WarmsGameModeBase Constructor"));
 
 	
 }
@@ -107,10 +109,27 @@ void AWarmsGameModeBase::CameraInit()
 	}
 }
 
+void AWarmsGameModeBase::InitEntry(int TeamIdx)
+{
+	auto MyGameState = GetGameState<AWPGameState>();
+
+	Team team;
+	MyGameState->GetTeam(TeamIdx, team);
+
+	auto MyHUD = Cast<UMyHUD>(currentWidget);
+
+	TArray<TWeakObjectPtr<APlayerCharacter>> EntryDatas;
+
+	for (auto Player : team)
+	{
+		if(IsValid(Player))
+			EntryDatas.Add(Player);
+	}
+	MyHUD->PlayerStateList->InitEntries(EntryDatas);
+}
+
 void AWarmsGameModeBase::BeginPlay()
 {
-	
-
 	UE_LOG(LogTemp, Error, TEXT("*************%s BeginPlay*********************"), *GetName());
 	InitWorldData();
 	CameraInit();
@@ -218,7 +237,9 @@ bool AWarmsGameModeBase::ChangeCharacter(APlayerCharacter* PlayerCharacter)
 	PlController->Possess(PlayerCharacter);
 
 	PlayerCharacter->ActiveOneCamera(0);
-	
+
+	InitEntry(PlayerCharacter->TeamNumber);
+
 	return true;
 }
 
@@ -241,6 +262,8 @@ void AWarmsGameModeBase::SpawnAllCharacters()
 	Team Characters;
 	FTransform Tr;
 	float ZOffset = 100.f;
+
+	
 	//loop until a valid position is found.
 	for(int i=0; i<TeamNum*CharacterNum; ++i)
 	{
@@ -258,25 +281,19 @@ void AWarmsGameModeBase::SpawnAllCharacters()
 			Tr.SetLocation(SpawnLocation);
 		}
 
-	/*	float X, Y;
-		X = FMath::FRandRange(WorldData->MapMin.X, WorldData->MapMax.X);
-		Y = FMath::FRandRange(WorldData->MapMin.Y, WorldData->MapMax.Y);
-
-		FVector SpawnLocation;
-		ValidLocation = CheckHeight(X, Y, SpawnLocation);
-		SpawnLocation.Z += ZOffset;
-		Tr.SetLocation(SpawnLocation);*/
-
+	
 		APlayerCharacter* SpawnedCharacter = 
 			(APlayerCharacter*)GetWorld()->SpawnActor(CharacterClass, &Tr);
 				
-
+		
 		Characters.Add(SpawnedCharacter);
 
-		GetWorld()->GetFirstPlayerController()->Possess(SpawnedCharacter);
+		//GetWorld()->GetFirstPlayerController()->Possess(SpawnedCharacter);
 	}
 	MyGameState->InitTeams(Characters);
-	GetWorld()->GetFirstPlayerController()->Possess(MyGameState->GetRandomCharacterInTeam(0));
+	ChangeCharacter(MyGameState->GetRandomCharacterInTeam(0));
+	//GetWorld()->GetFirstPlayerController()->Possess(MyGameState->GetRandomCharacterInTeam(0));
+	
 }
 
 bool AWarmsGameModeBase::CheckHeight(float X, float Y, FVector& OutSpawnLocation)
@@ -287,7 +304,14 @@ bool AWarmsGameModeBase::CheckHeight(float X, float Y, FVector& OutSpawnLocation
 	FVector End(X, Y, WorldData->MapMin.Z);
 
 	FCollisionObjectQueryParams ObjectQueryParams(ECollisionChannel::ECC_WorldStatic);
-	
+
+
+	/*if(GetWorld()->LineTraceSingleByProfile(OutHit, Start, End, FName(TEXT("WaterBodyCollision"))))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LineTrace Ocean"));
+		UKismetSystemLibrary::DrawDebugLine(GetWorld(), Start, End, FLinearColor::Blue, 10.0f, 10.0f);
+		return false;
+	}*/
 	
 	if (GetWorld()->LineTraceSingleByObjectType(OutHit, Start, End, ObjectQueryParams))
 	{
@@ -307,15 +331,37 @@ bool AWarmsGameModeBase::CheckHeight(float X, float Y, FVector& OutSpawnLocation
 void AWarmsGameModeBase::NextTurn()
 {
 	auto MyGameState = GetGameState<AWPGameState>();
+
+	//남은 팀 수
+	int AliveTeamNum;
+	//마지막으로 남은 팀
+	int VictoryTeam;
+
+	MyGameState->GetVictoryTeam(AliveTeamNum, VictoryTeam);
+
+	//한팀이 승리
+	if(AliveTeamNum == 1)
+	{
+		GameEnd();
+		return;
+	}
+	//무승부
+	else if(AliveTeamNum == 0)
+	{
+		return;
+	}
 	 
 	//Change Character in NextTeam
 	APlayerCharacter* NextCharacter = nullptr;
 	int NextTeam = MyGameState->NextTurn();
 	do
 	{
-		
 		NextCharacter = MyGameState->GetRandomCharacterInTeam(NextTeam);
+		UE_LOG(LogTemp, Warning, TEXT("NextTurn"));
+		
 	} while (!ChangeCharacter(NextCharacter));
+
+	//Cast<UMyHUD>(currentWidget)->PlayerStateList->UpdateEntries();
 }
 
 void AWarmsGameModeBase::SwitchCamera(AActor* Camera)
@@ -351,8 +397,13 @@ void AWarmsGameModeBase::SwitchDamagedCharacterCamera(float Duration, float Blen
 		GetWorld()->GetTimerManager().ClearTimer(SwitchCameraTimerHandler);
 		UE_LOG(LogTemp, Error, TEXT("SwitchDamagedCharacterCamera ClearTimer"));
 		CurrentIdx = -1;
-		SwitchDeadCharacterCamera(Duration, BlendTime);
-		//NextTurn();
+
+		//이번턴에 죽은 플레이어가 있을 때 죽는장면 화면전환
+		if(DeadPlayers.Num() != 0)
+			SwitchDeadCharacterCamera(Duration, BlendTime);
+		else
+			NextTurn();
+
 		return;
 	}
 				
@@ -361,7 +412,7 @@ void AWarmsGameModeBase::SwitchDamagedCharacterCamera(float Duration, float Blen
 	{
 		CurrentIdx = (CurrentIdx + 1) % DamagedPlayers.Num();
 	} while(!CheckDamagedPlayer(DamagedPlayers[CurrentIdx]));
-
+	
 	DamagedPlayers[CurrentIdx].Get()->ActiveOneCamera(1);
 	GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(DamagedPlayers[CurrentIdx].Get(), BlendTime);
 }
@@ -427,8 +478,8 @@ void AWarmsGameModeBase::UseWorldCamera(const FVector& WorldLocation, const FRot
 
 	GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(WorldCamera, BlendTime);
 
-	FTimerHandle TimerHandle;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&]()
+	//FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(WorldCameraTimerHandle, FTimerDelegate::CreateLambda([&]()
 	{
 		if (DamagedPlayerNum == 0 && DeadPlayers.Num() == 0)
 		{
@@ -454,7 +505,7 @@ void AWarmsGameModeBase::DieCharacter(TWeakObjectPtr<APlayerCharacter> Player)
 	const FVector SpawnLocation = Player->GetActorLocation();
 	const FRotator SpawnRotator = Player->GetActorRotation();
 	AGraveActor* Grave = (AGraveActor*)GetWorld()->SpawnActor(AGraveActor::StaticClass(), &SpawnLocation, &SpawnRotator);
-	Grave->SetMeshColor(FColor::Green);
+	Grave->SetMeshColor(Player->TeamColor.ToFColor(true));
 
 	UseWorldCamera(CameraLoc, CameraRot, nullptr, LookGraveDuration, 0.f);
 	
@@ -464,10 +515,15 @@ void AWarmsGameModeBase::DieCharacter(TWeakObjectPtr<APlayerCharacter> Player)
 	FTimerHandle TimerHandle;
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, FTimerDelegate::CreateLambda([&, CurrPlayer, Grave]()
 	{
+		auto MyGameState = GetGameState<AWPGameState>();
+		MyGameState->RemoveCharacter(CurrPlayer);
+
 		if(IsValid(CurrPlayer))
 			CurrPlayer->Destroy();
 		Grave->GraveMesh->SetSimulatePhysics(true);
+				
 	}), 1.f, false, 1.0f);
+
 }
 
 void AWarmsGameModeBase::PostLoad()
@@ -486,4 +542,55 @@ void AWarmsGameModeBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	UE_LOG(LogTemp, Error, TEXT("*************%s PostInitializeComponents*********************"), *GetName());
+}
+
+void AWarmsGameModeBase::GameEnd()
+{
+	//UGameplayStatics::OpenLevel(GetWorld(), TEXT("GameOverLevel"));
+	FLatentActionInfo Info;
+
+	//UGameplayStatics::UnloadStreamLevel(GetWorld(), TEXT("FirstPersonExampleMap"), Info, false);
+	
+	UGameplayStatics::LoadStreamLevel(GetWorld(), TEXT("GameOverLevel"), true,
+		false, Info);
+
+	auto Controller = GetWorld()->GetFirstPlayerController();
+	DisableInput(Controller);
+	Controller->SetShowMouseCursor(true);
+	Controller->bEnableClickEvents = false;
+	Controller->SetIgnoreLookInput(true);
+	Controller->SetInputMode(FInputModeUIOnly());
+	
+}
+
+void AWarmsGameModeBase::ClearTimer()
+{
+	UWorld* World = GetWorld();
+	ItemActorManager->ClearSpawnTimer(World);
+	World->GetTimerManager().ClearTimer(SwitchCameraTimerHandler);
+	World->GetTimerManager().ClearTimer(WorldCameraTimerHandle);
+}
+
+FString AWarmsGameModeBase::GetVictoryTeamPhrase()
+{
+	FString Pharse = GetGameState<AWPGameState>()->GetVictoryTeamName();
+	if (Pharse.IsEmpty())
+		Pharse = TEXT("무승부입니다!");
+
+	Pharse += TEXT(" 승리!");
+
+	return Pharse;
+}
+
+void AWarmsGameModeBase::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+	
+	UE_LOG(LogTemp, Warning, TEXT("GameModeBase EndPlay"));
+}
+
+void AWarmsGameModeBase::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	UE_LOG(LogTemp, Warning, TEXT("GameMode %s Tick, Addr : %p"), *GetName(), this);
 }

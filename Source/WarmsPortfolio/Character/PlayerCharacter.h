@@ -6,6 +6,7 @@
 #include "Engine/PostProcessVolume.h"
 #include "GameFramework/Character.h"
 #include "Voxel/Public/VoxelCharacter.h"
+#include "InOutWater.h"
 #include "PlayerCharacter.generated.h"
 
 
@@ -25,7 +26,7 @@ class AWeapon;
 class UPlayerAnimation;
 
 UCLASS()
-class WARMSPORTFOLIO_API APlayerCharacter : public AVoxelCharacter
+class WARMSPORTFOLIO_API APlayerCharacter : public AVoxelCharacter, public IInOutWater
 {
 	GENERATED_BODY()
 
@@ -116,23 +117,31 @@ public:
 	float ImpulseRate = 200.0f;
 
 	UPROPERTY()
+	bool bFireHoldDown = false;
+
+	UPROPERTY()
 	UPlayerAnimation* PlayerAnim;
 
+	int TeamNumber;
+	FLinearColor TeamColor;
 private:
 	UPROPERTY()
 	AWeapon* mCurrentWeapon = nullptr;
 
-	UPROPERTY()
-	bool bFireHoldDown = false;
+	//입수할 때 물의 높이(월드좌표)
+	float WaterZ = 0.f;
 		
 	
 public:
 	//void TestFunc();
 	
 	//XY��鿡���� ������
+	void ToggleShowCursor();
 	void UpDown(float Value);
 	void LeftRight(float Value);
 	void Yaw(float Value);
+	void IgnoreYaw(float Value){}
+	void IgnoreUpDown(float Value){}
 
 	
 	void Pull(float Value);
@@ -156,8 +165,10 @@ public:
 
 	//폭발모션, 이펙트, 오브젝트 제거
 	void DieChecking();
-	
-			
+
+	void SetColor(FLinearColor& Color);
+	void SetTeam(int Number);
+	void Init(FLinearColor& Color, int TeamNum);
 public:
 	virtual float TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator,
 		AActor* DamageCauser) override;
@@ -165,6 +176,9 @@ public:
 	//데미지를 입고있을 때 true
 	UPROPERTY(EditAnywhere, Category = "State")
 	bool bTakingDamage = false;
+
+	//물에 완전히 잠겼을 때 true
+	bool bInWaterFull = false;
 
 	float TakingDamageTime = 0.f;
 
@@ -191,12 +205,23 @@ public:
 	virtual void PostLoad() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	UFUNCTION(BlueprintCallable)
+	virtual void EnterWater() override;
+
+	UFUNCTION(BlueprintCallable)
+	virtual void ExitWater() override;
+
+	void DieInWater();
+	bool IsInWaterFull();
+
 	//virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved,
 	//	FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
 	static UDataTable* mProjectileTable;
 
+
 };
+
 
 inline void APlayerCharacter::PullEnd()
 {

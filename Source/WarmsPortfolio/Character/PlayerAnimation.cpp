@@ -20,6 +20,15 @@ UPlayerAnimation::UPlayerAnimation()
 		UE_LOG(LogTemp, Warning, TEXT("DieMotionMontage ObjectFind Success"));
 		DieMotionMontage = DieMontage.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> AimingMtg
+	(TEXT("AnimMontage'/Game/BluePrints/Animation/RifleAimingMontage.RifleAimingMontage'"));
+
+	if (AimingMtg.Succeeded())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AimingMontage ObjectFind Success"));
+		AimingMontage = AimingMtg.Object;
+	}
 		
 }
 
@@ -27,7 +36,14 @@ UPlayerAnimation::UPlayerAnimation()
 void UPlayerAnimation::PlayDieMotion()
 {
 	Montage_Play(DieMotionMontage, 1.f);
-	
+}
+
+void UPlayerAnimation::PlayAimingMotion()
+{
+	if(!Montage_IsPlaying(AimingMontage))
+	{
+		Montage_Play(AimingMontage, 1.f);
+	}
 }
 
 void UPlayerAnimation::AnimNotify_DieExplosion()
@@ -104,7 +120,7 @@ void UPlayerAnimation::NativeUpdateAnimation(float DeltaSeconds)
 		Vertical = Character->mVertical;
 		Horizontal = Character->mHorizontal;
 		TakingDamage = Character->bTakingDamage;
-
+		Aiming = Character->bFireHoldDown;
 		//UE_LOG(LogTemp, Error, TEXT("UPlayerAnimation IsFalling : %d, Vertical : %f, Horizontal : %f"), IsFalling, Vertical, Horizontal);
 	}
 

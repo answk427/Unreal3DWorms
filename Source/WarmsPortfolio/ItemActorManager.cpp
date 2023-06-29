@@ -95,3 +95,8 @@ void UItemActorManager::SetSpawnTimer(UWorld* World, float Time, const FVector& 
 		}
 	), Time, true);
 }
+
+void UItemActorManager::ClearSpawnTimer(UWorld* World)
+{
+	World->GetTimerManager().ClearTimer(mTimerHandle);
+}

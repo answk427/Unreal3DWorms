@@ -30,6 +30,7 @@ class WARMSPORTFOLIO_API AWarmsGameModeBase : public AGameModeBase
 
 private:
 	TSubclassOf<APlayerCharacter> CharacterClass;
+	
 
 	//죽으면 스폰할 묘지 액터
 	TSubclassOf<AGraveActor> GraveClass;
@@ -47,6 +48,7 @@ private:
 	
 
 	FTimerHandle SwitchCameraTimerHandler;
+	FTimerHandle WorldCameraTimerHandle;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -63,8 +65,7 @@ public:
 
 	UPROPERTY()
 	UItemActorManager* ItemActorManager;
-
-
+	
 
 public:
 	void AddDamagedPlayer(TWeakObjectPtr<APlayerCharacter> Player);
@@ -103,12 +104,25 @@ public:
 
 	void CameraInit();
 
+	void InitEntry(int TeamIdx);
 
 	virtual void PostLoad() override;
 	virtual void PreInitializeComponents() override;
 	virtual void PostInitializeComponents() override;
 
+	void GameEnd();
+
+	UFUNCTION(BlueprintCallable)
+	void ClearTimer();
 	
+
+	UFUNCTION(BlueprintCallable)
+	FString GetVictoryTeamPhrase();
+protected:
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+public:
+	virtual void Tick(float DeltaSeconds) override;
 };
 
 

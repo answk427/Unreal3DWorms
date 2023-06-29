@@ -36,4 +36,9 @@ void UHpBarWidget::UpdateHpBar()
 		UE_LOG(LogTemp, Warning, TEXT("currStatComponent Not Valid"));
 }
 
+void UHpBarWidget::SetHpBarColor(FLinearColor Color)
+{
+	HpProgressBar->SetFillColorAndOpacity(Color);
+}
+
 

@@ -25,7 +25,6 @@ class WARMSPORTFOLIO_API UHpBarWidget : public UUserWidget
 	
 	void UpdateHpBar();
 	
-
 private:
 	//�� ������ ������ ĳ������ StatComponent
 	TWeakObjectPtr<UStatComponent> currStatComponent;
@@ -44,4 +43,6 @@ public:
 
 public:
 	void BindingStatComp(UStatComponent* StatComp);
+
+	void SetHpBarColor(FLinearColor Color);
 };

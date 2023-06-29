@@ -22,8 +22,8 @@ class WARMSPORTFOLIO_API UWPGameInstance : public UGameInstance
 	
 public:
 	virtual void Init() override;
-	
-public:
+	virtual void BeginDestroy() override;
+
 	UPROPERTY()
 	UWPDataManager* DataManager;
 	

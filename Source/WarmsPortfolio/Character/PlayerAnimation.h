@@ -24,6 +24,8 @@ public:
 	
 	void PlayDieMotion();
 
+	void PlayAimingMotion();
+
 	UFUNCTION()
 	void AnimNotify_DieExplosion();
 
@@ -58,7 +60,10 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	bool TakingDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	bool Aiming;
 		
 	UAnimMontage* DieMotionMontage;
-
+	UAnimMontage* AimingMontage;
 };

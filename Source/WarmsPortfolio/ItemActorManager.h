@@ -31,6 +31,7 @@ public:
 	AItemActor* SpawnItemActor(UWorld* World, const FWPItem& Item, const FVector& Location, const FRotator& Rotator);
 	AItemActor* SpawnRandomItemActor(UWorld* World, const FVector& MinRange, const FVector& MaxRange);
 	void SetSpawnTimer(UWorld* World, float Time, const FVector& MinRange, const FVector& MaxRange);
-		
+	void ClearSpawnTimer(UWorld* World);
+	
 };
 

@@ -20,3 +20,8 @@ void UWPGameInstance::Init()
 	UCaptureHelper::Instance()->Init(GetWorld());
 }
 
+void UWPGameInstance::BeginDestroy()
+{
+	Super::BeginDestroy();
+}
+

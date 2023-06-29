@@ -9,6 +9,7 @@
 /**
  * 
  */
+class UPlayerStateWidget;
 UCLASS()
 class WARMSPORTFOLIO_API UMyHUD : public UUserWidget
 {
@@ -17,4 +18,8 @@ class WARMSPORTFOLIO_API UMyHUD : public UUserWidget
 public:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* AimImage;
+
+	
+	UPROPERTY(meta = (BindWidget))
+	UPlayerStateWidget* PlayerStateList;
 };
