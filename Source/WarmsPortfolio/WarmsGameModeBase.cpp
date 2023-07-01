@@ -301,7 +301,7 @@ bool AWarmsGameModeBase::CheckHeight(float X, float Y, FVector& OutSpawnLocation
 	FHitResult OutHit;
 	//up to down
 	FVector Start(X,Y, WorldData->SpawnMaxHeight);
-	FVector End(X, Y, WorldData->MapMin.Z);
+	FVector End(X, Y, WorldData->SpawnMinHeight);
 
 	FCollisionObjectQueryParams ObjectQueryParams(ECollisionChannel::ECC_WorldStatic);
 
@@ -406,13 +406,35 @@ void AWarmsGameModeBase::SwitchDamagedCharacterCamera(float Duration, float Blen
 
 		return;
 	}
-				
-	//데미지를 입은 캐릭터 중, 화면전환에 적절한 다음 캐릭터를 찾음
-	do
+
+	for(int i=0; i<DamagedPlayers.Num(); ++i)
 	{
-		CurrentIdx = (CurrentIdx + 1) % DamagedPlayers.Num();
-	} while(!CheckDamagedPlayer(DamagedPlayers[CurrentIdx]));
+		UE_LOG(LogTemp, Error, TEXT("SwitchDamagedCharacterCamera for"));
+
+		auto Character = DamagedPlayers[i];
+
+		if (!CheckDamagedPlayer(Character))
+		{
+			RemoveDamagedPlayer(Character);
+		}
+		else
+		{
+			CurrentIdx = i;
+			break;
+		}
+	}
 	
+	//데미지를 입은 캐릭터 중, 화면전환에 적절한 다음 캐릭터를 찾음
+	/*do
+	{
+		UE_LOG(LogTemp, Error, TEXT("SwitchDamagedCharacterCamera doWhile"));
+		CurrentIdx = (CurrentIdx + 1) % DamagedPlayers.Num();
+	} while(!CheckDamagedPlayer(DamagedPlayers[CurrentIdx]));*/
+
+
+	if (CurrentIdx == -1)
+		return;
+
 	DamagedPlayers[CurrentIdx].Get()->ActiveOneCamera(1);
 	GetWorld()->GetFirstPlayerController()->SetViewTargetWithBlend(DamagedPlayers[CurrentIdx].Get(), BlendTime);
 }

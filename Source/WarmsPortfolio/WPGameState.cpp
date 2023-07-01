@@ -152,7 +152,7 @@ APlayerCharacter* AWPGameState::GetRandomCharacterInTeam(const int TeamIdx)
 	do
 	{
 		Character= Teams[TeamIdx][FMath::RandRange(0, CharacterNum - 1)];
-	} while (!IsValid(Character));
+	} while (Character == nullptr || Character->IsPendingKill()); //while (!IsValid(Character));
 		
 	return Character;
 }

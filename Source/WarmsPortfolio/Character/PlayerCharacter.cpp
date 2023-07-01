@@ -206,7 +206,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	if(IsInWaterFull())
 	{
 		DieInWater();
-		//UE_LOG(LogTemp, Warning, TEXT("diffZ = %f, CharacterHeight : %f"), diffZ, CharacterHeight);
+		UE_LOG(LogTemp, Warning, TEXT("%s Tick IsInWaterFull Check"), *GetName());
 	}
 
 	
@@ -771,7 +771,7 @@ void APlayerCharacter::DieInWater()
 
 bool APlayerCharacter::IsInWaterFull()
 {
-	if (!bInWater)
+	if (!bInWater || bInWaterFull)
 		return false;
 
 	float diffZ = WaterZ - GetActorLocation().Z;
@@ -780,9 +780,18 @@ bool APlayerCharacter::IsInWaterFull()
 	//입수할 때 물의 Z값과 현재 Z값의 차이가 캐릭터의 높이/2 보다 크면 완전잠수상태
 	if (diffZ > CharacterHeight * 2)
 	{
+		bInWaterFull = true;
 		UE_LOG(LogTemp, Warning, TEXT("InWaterFull"));
+		DisableInput(GetWorld()->GetFirstPlayerController());
+		//GetCharacterMovement()->Velocity.X = 0.f;
+		//GetCharacterMovement()->Velocity.Y = 0.f;
+		//GetCharacterMovement()->StopMovementImmediately();
+		GetCharacterMovement()->StopActiveMovement();
+		
 		return true;
 	}
+
+	
 
 	return false;
 }

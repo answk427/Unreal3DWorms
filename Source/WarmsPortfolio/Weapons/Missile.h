@@ -9,6 +9,9 @@
 /**
  * 
  */
+
+class AAmmo;
+
 UCLASS()
 class WARMSPORTFOLIO_API AMissile : public AProjectile
 {
@@ -23,4 +26,16 @@ public:
 	//�߻�ü �浹�� �ݹ�Ǵ� �Լ�
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	virtual void PostInitializeComponents() override;
+
+	UPROPERTY()
+	USceneComponent* AmmoSocket;
+
+	UPROPERTY()
+	AAmmo* Ammo;
+
+
+	FName AmmoSocketName = TEXT("AmmoSocket");
 };
+
+

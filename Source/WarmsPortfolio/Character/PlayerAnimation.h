@@ -63,6 +63,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
 	bool Aiming;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Pawn, Meta = (AllowPrivateAccess = true))
+	bool InWaterFull;
 		
 	UAnimMontage* DieMotionMontage;
 	UAnimMontage* AimingMontage;

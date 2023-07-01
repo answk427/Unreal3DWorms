@@ -121,6 +121,7 @@ void UPlayerAnimation::NativeUpdateAnimation(float DeltaSeconds)
 		Horizontal = Character->mHorizontal;
 		TakingDamage = Character->bTakingDamage;
 		Aiming = Character->bFireHoldDown;
+		InWaterFull = Character->bInWaterFull;
 		//UE_LOG(LogTemp, Error, TEXT("UPlayerAnimation IsFalling : %d, Vertical : %f, Horizontal : %f"), IsFalling, Vertical, Horizontal);
 	}
 

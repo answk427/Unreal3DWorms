@@ -8,6 +8,8 @@
 AMissile::AMissile()
 {
 	mCollisionComp->OnComponentHit.AddDynamic(this, &AMissile::OnHit);
+
+	AmmoSocket = CreateDefaultSubobject<USceneComponent>(TEXT("AmmoSocket"));
 }
 
 void AMissile::BeginPlay()
@@ -29,4 +31,10 @@ void AMissile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPri
 		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 		Destroy();
 	}
+}
+
+inline void AMissile::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	AmmoSocket->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, AmmoSocketName);
 }
