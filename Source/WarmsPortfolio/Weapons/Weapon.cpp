@@ -186,6 +186,11 @@ void AWeapon::PostInitializeComponents()
 		mMeshComponent->SetRelativeScale3D(FVector(MeshScale, MeshScale, MeshScale));
 }
 
+AWeapon* AWeapon::GetFiredWeapon()
+{
+	return this;
+}
+
 void AWeapon::Fire()
 {
 	UE_LOG(LogTemp, Warning, TEXT("AWeapon Fire"));

@@ -9,6 +9,21 @@
 
 class AProjectile;
 class AWeapon;
+class USoundBase;
+
+
+USTRUCT()
+struct FSoundData : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
+	FString SoundName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
+	USoundBase* Sound;
+};
+
 
 USTRUCT()
 struct FWeaponData : public FTableRowBase
@@ -83,12 +98,14 @@ struct FProjectileData : public FWeaponData
 };
 
 //������ ���۵� �� �ε� �� ���������̺��� ���
+
+
 USTRUCT()
 struct FInitDataTables : public FTableRowBase
 {
 	GENERATED_BODY()
 	
-	FInitDataTables() {}
+	FInitDataTables() : DataTable(nullptr) {}
 	
 	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = TableInfo)
 	FString TableName;*/

@@ -14,10 +14,13 @@
  */
 
 class UItemActorManager;
+class USoundManager;
 class APlayerCharacter;
 class AWorldData;
 class ACineCameraActor;
 class AGraveActor;
+class UMyHUD;
+
 
 UCLASS()
 class WARMSPORTFOLIO_API AWarmsGameModeBase : public AGameModeBase
@@ -56,16 +59,26 @@ public:
 
 private:
 	bool CheckDamagedPlayer(TWeakObjectPtr<APlayerCharacter> Player);
+
+	//팀의 수, 팀 당 인원 수 설정
+	void InitTeamData();
 	
 public:
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
 	TSubclassOf<UUserWidget> HUDWidget;
+
+	UPROPERTY()
 	UUserWidget* currentWidget;
 
 	UPROPERTY()
+	UMyHUD* CastedHUD;
+
+	UPROPERTY()
 	UItemActorManager* ItemActorManager;
-	
+
+	UPROPERTY(BlueprintReadWrite)
+	USoundManager* SoundManager;
 
 public:
 	void AddDamagedPlayer(TWeakObjectPtr<APlayerCharacter> Player);

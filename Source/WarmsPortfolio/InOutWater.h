@@ -7,7 +7,7 @@
 #include "InOutWater.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, meta = (CannotImplementInterfaceInBlueprint))
 class UInOutWater : public UInterface
 {
 	GENERATED_BODY()
@@ -16,6 +16,8 @@ class UInOutWater : public UInterface
 /**
  * 
  */
+
+
 class WARMSPORTFOLIO_API IInOutWater
 {
 	GENERATED_BODY()
@@ -25,8 +27,10 @@ public:
 	bool bInWater = false;
 
 	//물에 들어갈때 실행되는 함수
+	UFUNCTION(BlueprintCallable)
 	virtual void EnterWater() = 0;
 
 	//물에서 나올때 실행되는 함수
+	UFUNCTION(BlueprintCallable)
 	virtual void ExitWater() = 0;
 };

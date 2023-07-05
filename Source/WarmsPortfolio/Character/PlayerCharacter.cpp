@@ -35,6 +35,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "PlayerAnimation.h"
+#include "UI/MyHUD.h"
 
 
 UDataTable* APlayerCharacter::mProjectileTable = nullptr;
@@ -254,6 +255,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("Pull"), this, &APlayerCharacter::Pull);
 	PlayerInputComponent->BindAxis(TEXT("Push"), this, &APlayerCharacter::Push);
 
+
+	auto GMB = ((AWarmsGameModeBase*)GetWorld()->GetAuthGameMode());
+	GMB->CastedHUD->OnOffCrossHair(true);
 }
 
 void APlayerCharacter::ToggleShowCursor()
@@ -263,14 +267,39 @@ void APlayerCharacter::ToggleShowCursor()
 	//Toggle이므로 현재 bool값에서 뒤집음.
 	bool ShowCursor = !MyController->bShowMouseCursor;
 
-	/*if (ShowCursor)
-		MyController->SetInputMode(FInputModeUIOnly());
+	UE_LOG(LogTemp, Warning, TEXT("ShowCursor is %d"), ShowCursor);
+		
+	if (ShowCursor)
+	{
+		//MyController->SetInputMode(FInputModeUIOnly());
+		InputComponent->AxisBindings.Empty();
+		/*for(auto elem : InputComponent->AxisBindings)
+		{
+			
+			elem.AxisDelegate.GetDelegate
+		}*/
+		
+		UE_LOG(LogTemp, Warning, TEXT("ShowCursor"));
+	}
 	else
-		MyController->SetInputMode(FInputModeGameAndUI());*/
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NotShowCursor"));
+		InputComponent->BindAxis(TEXT("UpDown"), this, &APlayerCharacter::UpDown);
+		InputComponent->BindAxis(TEXT("LeftRight"), this, &APlayerCharacter::LeftRight);
+
+		InputComponent->BindAxis(TEXT("Yaw"), this, &APlayerCharacter::Yaw);
+		InputComponent->BindAxis(TEXT("LookUp"), this, &APawn::AddControllerPitchInput);
+
+		InputComponent->BindAxis(TEXT("Pull"), this, &APlayerCharacter::Pull);
+		InputComponent->BindAxis(TEXT("Push"), this, &APlayerCharacter::Push);
+		//MyController->SetInputMode(FInputModeGameAndUI());
+	}
+		
 
 
 	MyController->SetShowMouseCursor(ShowCursor);
 
+	
 }
 
 void APlayerCharacter::UpDown(float Value)
@@ -479,9 +508,12 @@ void APlayerCharacter::ReleasedFire()
 	if (mCurrentWeapon == nullptr || mCurrentWeapon->IsPendingKill())
 		return;
 
+	auto FiredWeapon = mCurrentWeapon->GetFiredWeapon();
 	mCurrentWeapon->Fire();
 
-	((AWarmsGameModeBase*)GetWorld()->GetAuthGameMode())->SwitchCamera(mCurrentWeapon);
+	auto GMB = ((AWarmsGameModeBase*)GetWorld()->GetAuthGameMode());
+	GMB->CastedHUD->OnOffCrossHair(false);
+	GMB->SwitchCamera(FiredWeapon);
 
 }
 
@@ -566,9 +598,8 @@ void APlayerCharacter::OpenInventory()
 
 		UInventoryWeaponWidget* Inventory = Cast<UInventoryWeaponWidget>(mInventoryWidget);
 		check(Inventory != nullptr);
-		mInventory->AddWeaponItem(FWPItem(FName(TEXT("GrenadeTest")), EObjectTypeName::Projectile));
-		mInventory->AddWeaponItem(FWPItem(FName(TEXT("MissileTest")), EObjectTypeName::Projectile));
-		mInventory->AddWeaponItem(FWPItem(FName(TEXT("RocketLauncher")), EObjectTypeName::Projectile));
+		mInventory->AddWeaponItem(FWPItem(FName(TEXT("Grenade")), EObjectTypeName::Projectile));
+		mInventory->AddWeaponItem(FWPItem(FName(TEXT("Rocket")), EObjectTypeName::Projectile));
 
 		auto Visibility = mInventoryWidget->GetVisibility();
 
@@ -777,8 +808,8 @@ bool APlayerCharacter::IsInWaterFull()
 	float diffZ = WaterZ - GetActorLocation().Z;
 	float CharacterHeight = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 
-	//입수할 때 물의 Z값과 현재 Z값의 차이가 캐릭터의 높이/2 보다 크면 완전잠수상태
-	if (diffZ > CharacterHeight * 2)
+	//입수할 때 물의 Z값과 현재 Z값의 차이로 물에 완전히 들어갔는지 판단
+	if (diffZ > CharacterHeight * 1.5f)
 	{
 		bInWaterFull = true;
 		UE_LOG(LogTemp, Warning, TEXT("InWaterFull"));

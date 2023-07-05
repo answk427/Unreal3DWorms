@@ -7,6 +7,7 @@
 #include "WPDataManager.h"
 #include "WPGameInstance.h"
 #include "Weapons/Weapon.h"
+#include "WarmsGameModeBase.h"
 
 
 AItemActor* UItemActorManager::AddItem(const FWPItem& Item)
@@ -72,15 +73,28 @@ AItemActor* UItemActorManager::SpawnItemActor(UWorld* World, const FWPItem& Item
 
 AItemActor* UItemActorManager::SpawnRandomItemActor(UWorld* World, const FVector& MinRange, const FVector& MaxRange)
 {
-	FVector Location(FMath::FRandRange(MinRange.X, MaxRange.X),
-		FMath::FRandRange(MinRange.Y, MaxRange.Y),
-		FMath::FRandRange(MinRange.Z, MaxRange.Z));
+	auto GM = Cast<AWarmsGameModeBase>(World->GetAuthGameMode());
+
+	FVector Location;
+	FVector OutSpawnLoc;
+
+	do
+	{
+		FMath::RandInit(FDateTime::Now().GetTicks());
+
+		Location.Set(FMath::FRandRange(MinRange.X, MaxRange.X),
+			FMath::FRandRange(MinRange.Y, MaxRange.Y),
+			0.f);
+		
+	} while (!GM->CheckHeight(Location.X, Location.Y, OutSpawnLoc));
+
+	OutSpawnLoc.Z += 20.f;
 
 	TArray<FWPItem> Keys;
 	ItemActors.GetKeys(Keys);
 	int RandomIdx = FMath::FRandRange(0, Keys.Num());
 
-	return SpawnItemActor(World, Keys[RandomIdx], Location, FRotator(0.f,0.f,0.f));
+	return SpawnItemActor(World, Keys[RandomIdx], OutSpawnLoc, FRotator(0.f,0.f,0.f));
 }
 
 void UItemActorManager::SetSpawnTimer(UWorld* World, float Time, const FVector& MinRange, const FVector& MaxRange)

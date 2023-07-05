@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "DataTableStructures.h"
+#include "SoundManager.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "WarmsGameModeBase.h"
@@ -52,7 +53,8 @@ AProjectile::AProjectile()
 	mProjectileMovement->MaxSpeed = mProjectileInfo.MaxSpeed;
 
 	mGunPos = CreateDefaultSubobject<USceneComponent>(TEXT("FirePosSceneComponent"));
-	
+	mGunPos->SetRelativeLocation(FVector::ZeroVector);
+
 	//�߻�ü ���� �׸��⿡ ���Ǵ� ����
 	static ConstructorHelpers::FClassFinder<AActor> Trajectory(TEXT("Blueprint'/Game/BluePrints/TrajectoryActor.TrajectoryActor_C'"));
 	if(Trajectory.Succeeded())
@@ -190,6 +192,13 @@ void AProjectile::ApplyDamage(const FHitResult& Impact)
 	
 }
 
+void AProjectile::PlayFireSound()
+{
+	auto GM = Cast<AWarmsGameModeBase>(GetWorld()->GetAuthGameMode());
+	auto Sound = GM->SoundManager->GetSound(TEXT("PowerfulShot"));
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, GetActorLocation(), 0.3f);
+}
+
 float AProjectile::GetInitialSpeed()
 {
 	return FMath::Min(mProjectileInfo.InitialSpeed * FireRate, mProjectileInfo.MaxSpeed);
@@ -241,7 +250,7 @@ void AProjectile::Fire()
 	FinishSpawning(SpawnTr, true);
 
 
-
+	PlayFireSound();
 	//SetActorTransform(SpawnTr);
 	//FinishSpawningTransform(SpawnTr);
 	UE_LOG(LogTemp, Warning, TEXT("AProjectile Fire End"));

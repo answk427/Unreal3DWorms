@@ -205,10 +205,10 @@ public:
 	virtual void PostLoad() override;
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	UFUNCTION(BlueprintCallable)
+	//UFUNCTION(BlueprintCallable)
 	virtual void EnterWater() override;
 
-	UFUNCTION(BlueprintCallable)
+	//UFUNCTION(BlueprintCallable)
 	virtual void ExitWater() override;
 
 	void DieInWater();

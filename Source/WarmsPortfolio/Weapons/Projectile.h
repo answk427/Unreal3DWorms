@@ -53,7 +53,7 @@ public:
 	virtual void PostInitializeComponents() override;
 	virtual void PreInitializeComponents() override;
 
-
+	
 public:
 	//���� ���ݷ�. �÷��̾��� ȿ���� ���� �⺻���ݷ¿��� �޶��� �� ����. (ex ���ݷ� 2��)
 	UPROPERTY()
@@ -108,6 +108,8 @@ protected:
 	virtual void BeginPlay() override;
 		
 	virtual void ApplyDamage(const FHitResult& Impact);
+
+	virtual void PlayFireSound();
 
 	float GetInitialSpeed();
 public:

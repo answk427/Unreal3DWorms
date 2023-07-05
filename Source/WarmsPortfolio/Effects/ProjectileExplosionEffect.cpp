@@ -5,6 +5,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystem.h"
 #include "Components/PointLightComponent.h"
+#include "WarmsGameModeBase.h"
+#include "SoundManager.h"
+#include "Engine/LevelStreaming.h"
 
 // Sets default values
 AProjectileExplosionEffect::AProjectileExplosionEffect()
@@ -36,6 +39,10 @@ void AProjectileExplosionEffect::BeginPlay()
 	//UE_LOG(LogTemp, Warning, TEXT("Effect Location X:%f Y:%f Z:%f"), location.X, location.Y, location.Z);
 	if (mExplosionFX)
 		UGameplayStatics::SpawnEmitterAtLocation(this, mExplosionFX, GetActorLocation(), GetActorRotation());
+
+	auto GM = Cast<AWarmsGameModeBase>(GetWorld()->GetAuthGameMode());
+	auto Sound = GM->SoundManager->GetSound(TEXT("Explosion"));
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), Sound, GetActorLocation(), 0.3f);
 
 	Destroy();
 }

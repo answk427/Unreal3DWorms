@@ -39,6 +39,16 @@ bool AWPGameState::RemoveCharacter(APlayerCharacter* PlayerCharacter)
 	return false;
 }
 
+void AWPGameState::SetTeamNum(int Num)
+{
+	TeamNum = Num;
+}
+
+void AWPGameState::SetCharacterNum(int Num)
+{
+	CharacterNum = Num;
+}
+
 void AWPGameState::InitTeams()
 {
 	Teams.SetNum(TeamNum);

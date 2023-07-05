@@ -49,7 +49,10 @@ public:
 	void GetTeam(int TeamIdx, Team& OutTeam) const;
 
 	bool RemoveCharacter(APlayerCharacter* PlayerCharacter);
-public: 
+public:
+	void SetTeamNum(int Num);
+	void SetCharacterNum(int Num);
+
 	void InitTeams();
 	//TeamSrc has All Character in Game. must TeamSrc.Num == TeamNum*CharacterNum
 	void InitTeams(const Team& TeamSrc);

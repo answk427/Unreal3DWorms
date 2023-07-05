@@ -37,6 +37,10 @@ protected:
 public:
 	virtual void PostInitializeComponents() override;
 
+protected:
+	virtual void PlayFireSound() override;
+
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widget")
 	UWidgetComponent* mCountDownWidget;
 

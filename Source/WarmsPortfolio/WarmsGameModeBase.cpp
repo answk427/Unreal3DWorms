@@ -18,7 +18,8 @@
 #include "CinematicCamera/Public/CineCameraActor.h"
 #include "GraveActor.h"
 #include "PlayerStateWidget.h"
-
+#include "SoundManager.h"
+#include "WPGameInstance.h"
 
 AWarmsGameModeBase::AWarmsGameModeBase()
 {
@@ -40,6 +41,7 @@ AWarmsGameModeBase::AWarmsGameModeBase()
 		if (currentWidget)
 		{
 			currentWidget->AddToViewport();
+			CastedHUD = Cast<UMyHUD>(currentWidget);
 		}
 	}
 
@@ -55,6 +57,9 @@ AWarmsGameModeBase::AWarmsGameModeBase()
 		UE_LOG(LogTemp, Warning, TEXT("-====--- MyCharacterClass Fail"));
 	}
 	ItemActorManager = CreateDefaultSubobject<UItemActorManager>(TEXT("ItemActorManager"));
+
+	SoundManager = CreateDefaultSubobject<USoundManager>(TEXT("SoundManager"));
+
 	UE_LOG(LogTemp, Warning, TEXT("WarmsGameModeBase Constructor"));
 
 	
@@ -131,8 +136,10 @@ void AWarmsGameModeBase::InitEntry(int TeamIdx)
 void AWarmsGameModeBase::BeginPlay()
 {
 	UE_LOG(LogTemp, Error, TEXT("*************%s BeginPlay*********************"), *GetName());
+
 	InitWorldData();
 	CameraInit();
+	InitTeamData();
 
 	UWPGameInstance* GameInstance = Cast<UWPGameInstance>(GetGameInstance());
 	check(GameInstance);
@@ -149,8 +156,9 @@ void AWarmsGameModeBase::BeginPlay()
 	}
 
 	//���� �ð����� ������ ���������� ����
-	ItemActorManager->SetSpawnTimer(GetWorld(), 5.0f, FVector(-1000.f, -1000.f, 300.f),
-		FVector(1000.f, 1000.f, 350.f));
+	
+	ItemActorManager->SetSpawnTimer(GetWorld(), 10.0f, WorldData->MapMin,
+		WorldData->MapMax);
 		
 	TerrainInit();
 }
@@ -168,6 +176,17 @@ bool AWarmsGameModeBase::CheckDamagedPlayer(TWeakObjectPtr<APlayerCharacter> Pla
 	}
 		
 	return true;
+}
+
+void AWarmsGameModeBase::InitTeamData()
+{
+	auto GameInstance = Cast<UWPGameInstance>(GetGameInstance());
+	if (GameInstance == nullptr)
+		return;
+
+	auto GS = GetGameState<AWPGameState>();
+	GS->SetTeamNum(GameInstance->GetTeamNum());
+	GS->SetCharacterNum(GameInstance->GetPawnNumInTeam());
 }
 
 void AWarmsGameModeBase::PostLogin(APlayerController* NewPlayer)

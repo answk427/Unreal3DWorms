@@ -22,4 +22,6 @@ public:
 	
 	UPROPERTY(meta = (BindWidget))
 	UPlayerStateWidget* PlayerStateList;
+
+	void OnOffCrossHair(bool OnOff);
 };

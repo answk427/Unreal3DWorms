@@ -107,3 +107,8 @@ void AGrenade::Explode(const FHitResult& CurrPos)
 	}), 1.0f, false, mExplodeDelay);
 
 }
+
+void AGrenade::PlayFireSound()
+{
+	
+}
