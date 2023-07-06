@@ -19,10 +19,12 @@
 #include "GraveActor.h"
 #include "PlayerStateWidget.h"
 #include "SoundManager.h"
+#include "CaptureHelper.h"
 #include "WPGameInstance.h"
 
 AWarmsGameModeBase::AWarmsGameModeBase()
 {
+	DataManager = CreateDefaultSubobject<UWPDataManager>(TEXT("DataManager"));
 
 	//static ConstructorHelpers::FClassFinder<APlayerCharacter> BP_Character(TEXT("Blueprint'/Game/BluePrints/BP_PlayerCharacter_.BP_PlayerCharacter__C'"));
 
@@ -137,13 +139,12 @@ void AWarmsGameModeBase::BeginPlay()
 {
 	UE_LOG(LogTemp, Error, TEXT("*************%s BeginPlay*********************"), *GetName());
 
+	UCaptureHelper::Instance()->Init(GetWorld());
+	DataManager->InitDataTables();
 	InitWorldData();
 	CameraInit();
 	InitTeamData();
-
-	UWPGameInstance* GameInstance = Cast<UWPGameInstance>(GetGameInstance());
-	check(GameInstance);
-	auto DataManager = GameInstance->DataManager;
+		
 
 	//������ ���̺�� �ִ� ��� �����ۿ� ���� �����ۿ���(����X, �����) ����
 	for(int i=0; i<EObjectTypeName::UnknownItem; ++i)

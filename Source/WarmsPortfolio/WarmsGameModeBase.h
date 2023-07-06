@@ -15,11 +15,13 @@
 
 class UItemActorManager;
 class USoundManager;
+class UWPDataManager;
 class APlayerCharacter;
 class AWorldData;
 class ACineCameraActor;
 class AGraveActor;
 class UMyHUD;
+
 
 
 UCLASS()
@@ -79,6 +81,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	USoundManager* SoundManager;
+
+	UPROPERTY()
+	UWPDataManager* DataManager;
 
 public:
 	void AddDamagedPlayer(TWeakObjectPtr<APlayerCharacter> Player);

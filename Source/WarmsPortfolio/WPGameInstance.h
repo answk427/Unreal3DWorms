@@ -26,9 +26,7 @@ class WARMSPORTFOLIO_API UWPGameInstance : public UGameInstance
 public:
 	virtual void Init() override;
 	virtual void BeginDestroy() override;
-
-	UPROPERTY()
-	UWPDataManager* DataManager;
+		
 
 	UFUNCTION(BlueprintCallable)
 	void SetTeamNum(int num)

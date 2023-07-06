@@ -17,6 +17,7 @@
 #include "Components/ListView.h"
 #include "Character/PlayerEquipments.h"
 #include "WarmsPortfolio/Weapons/Projectile.h"
+#include "WarmsGameModeBase.h"
 
 TMap<FName, UMaterialInstanceDynamic*> UInventoryWeaponWidget::WeaponListItems;
 
@@ -133,9 +134,11 @@ void UInventoryWeaponWidget::ItemRenderToTexture(const FWPItem& Item, UTextureRe
 	if (DataManager == nullptr)
 	{
 		//���������̺���� ���̺��� ������.
-		static UWPGameInstance* GameInstance = Cast<UWPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-		check(GameInstance);
-		DataManager = GameInstance->DataManager;
+		auto GB = Cast<AWarmsGameModeBase>(GetWorld()->GetAuthGameMode());
+		check(GB);
+		//static UWPGameInstance* GameInstance = Cast<UWPGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+		//check(GameInstance);
+		DataManager = GB->DataManager;
 	}
 
 	check(DataManager);

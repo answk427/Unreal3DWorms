@@ -127,9 +127,10 @@ void APlayerCharacter::BeginPlay()
 	if (mProjectileTable == nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Character BeginPlay ProjectileTable nullptr"));
-		static UWPGameInstance* gameInstance = Cast<UWPGameInstance>(GetGameInstance());
-		if (gameInstance)
-			mProjectileTable = gameInstance->DataManager->GetTable(FName("Projectile"));
+		//static UWPGameInstance* gameInstance = Cast<UWPGameInstance>(GetGameInstance());
+		static auto GM = Cast<AWarmsGameModeBase>(GetWorld()->GetAuthGameMode());
+		if (GM)
+			mProjectileTable = GM->DataManager->GetTable(FName("Projectile"));
 	}
 
 	mRope = GetWorld()->SpawnActor<AMyRope>();

@@ -13,8 +13,10 @@
 AItemActor* UItemActorManager::AddItem(const FWPItem& Item)
 {
 	//���������̺���� �ش� �����ۿ� ���� ������ ������.
-	auto GameInstance = Cast<UWPGameInstance>(GetWorld()->GetGameInstance());
-	auto DataManager = GameInstance->DataManager;
+	//auto GameInstance = Cast<UWPGameInstance>(GetWorld()->GetGameInstance());
+
+	auto GM = Cast<AWarmsGameModeBase>(GetWorld()->GetAuthGameMode());
+	auto DataManager = GM->DataManager;
 	auto WeaponData = DataManager->GetWeaponData(Item.GameObjectType, Item.ItemName, TEXT("CreateItemActorFunc"));
 
 	//�ش� �������� �޽��� �̿��� �����۾��� ���� 
